@@ -9,10 +9,11 @@ public class HandStrengthEvaluator extends HashMap<String, Float> {
 
 	public HandStrengthEvaluator(String HSDBPath) {
 		this.HSDBPath = HSDBPath;
-		preflopPath = HSDBPath + "\\preflop\\preflop.txt";
-		flopPath = HSDBPath + "\\flop\\";
-		turnPath = HSDBPath + "\\turn\\";
-		riverPath = HSDBPath + "\\river\\";
+		String separator = System.getProperty("os.name").contains("Windows") ? "\\" : "/";
+		preflopPath = HSDBPath + separator + "preflop" + separator + "preflop.txt";
+		flopPath = HSDBPath + separator + "flop" + separator;
+		turnPath = HSDBPath + separator + "turn" + separator;
+		riverPath = HSDBPath + separator + "river" + separator;
 		board = "INIT";
 	}
 

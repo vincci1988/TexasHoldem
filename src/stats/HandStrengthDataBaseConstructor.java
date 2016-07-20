@@ -13,20 +13,31 @@ import holdem.*;
 
 public class HandStrengthDataBaseConstructor {
 
-	static public void MASSCompute_ConstructDB(String path) throws Exception {
-		File root = new File(path + "\\HSDB");
+	public static void main(String[] args) {
+		try {
+			String rootPath = "/Users/Xun";
+			MASSCompute_ConstructDB(rootPath);
+		} catch (Exception exception) {
+			System.out.println(exception);
+		}
+	}
+	
+	static private void MASSCompute_ConstructDB(String path) throws Exception {
+		if (System.getProperty("os.name").contains("Windows")) separator = "\\";
+		else separator = "/";
+		File root = new File(path + separator + "HSDB");
 		root.mkdir();
 		String rootPath = root.getAbsolutePath();
-		String riverPath = rootPath + "\\river";
+		String riverPath = rootPath + separator + "river";
 		File river = new File(riverPath);
 		river.mkdir();
-		String turnPath = rootPath + "\\turn";
+		String turnPath = rootPath + separator + "turn";
 		File turn = new File(turnPath);
 		turn.mkdir();
-		String flopPath = rootPath + "\\flop";
+		String flopPath = rootPath + separator + "flop";
 		File flop = new File(flopPath);
 		flop.mkdir();
-		String preflopPath = rootPath + "\\preflop";
+		String preflopPath = rootPath + separator + "preflop";
 		File preflop = new File(preflopPath);
 		preflop.mkdir();
 		MASSCompute_RiverStrength(riverPath);
@@ -70,7 +81,7 @@ public class HandStrengthDataBaseConstructor {
 									Collections.sort(hands);
 								}
 							}
-							PrintWriter writer = new PrintWriter(path + "\\" + board + ".txt");
+							PrintWriter writer = new PrintWriter(path + separator + board + ".txt");
 							for (int i = 0; i < hands.size(); i++) {
 								int better = 0;
 								HoleCards holeCards = hands.get(i).getHoleCards();
@@ -123,7 +134,7 @@ public class HandStrengthDataBaseConstructor {
 							Board current = new Board();
 							current.addAll(board);
 							current.add(deck.get(i));
-							FileReader fr = new FileReader(riverDBPath + "\\" + current + ".txt");
+							FileReader fr = new FileReader(riverDBPath + separator + current + ".txt");
 							BufferedReader reader = new BufferedReader(fr);
 							for (int j = 0; j < riverDataFileLineCnt; j++) {
 								String line = reader.readLine();
@@ -134,7 +145,7 @@ public class HandStrengthDataBaseConstructor {
 							reader.close();
 						}
 						holeCardsStrengths.finalize(turnHoleCardOccurences);
-						FileWriter fileWriter = new FileWriter(path + "\\" + board + ".txt");
+						FileWriter fileWriter = new FileWriter(path + separator + board + ".txt");
 						BufferedWriter writer = new BufferedWriter(fileWriter);
 						for (int i = 0; i < holeCardsStrengths.size(); i++) {
 							writer.write(holeCardsStrengths.get(i) + "\n");
@@ -176,7 +187,7 @@ public class HandStrengthDataBaseConstructor {
 						Board current = new Board();
 						current.addAll(board);
 						current.add(deck.get(i));
-						FileReader fr = new FileReader(turnDBPath + "\\" + current + ".txt");
+						FileReader fr = new FileReader(turnDBPath + separator + current + ".txt");
 						BufferedReader reader = new BufferedReader(fr);
 						for (int j = 0; j < turnDataFileLineCnt; j++) {
 							String line = reader.readLine();
@@ -187,7 +198,7 @@ public class HandStrengthDataBaseConstructor {
 						reader.close();
 					}
 					holeCardsStrengths.finalize(flopHoleCardOccurences);
-					FileWriter fileWriter = new FileWriter(path + "\\" + board + ".txt");
+					FileWriter fileWriter = new FileWriter(path + separator + board + ".txt");
 					BufferedWriter writer = new BufferedWriter(fileWriter);
 					for (int i = 0; i < holeCardsStrengths.size(); i++) {
 						writer.write(holeCardsStrengths.get(i) + "\n");
@@ -219,7 +230,7 @@ public class HandStrengthDataBaseConstructor {
 					board.add(deck.get(j1));
 					board.add(deck.get(j2));
 					board.add(deck.get(j3));
-					FileReader fr = new FileReader(flopDBPath + "\\" + board + ".txt");
+					FileReader fr = new FileReader(flopDBPath + separator + board + ".txt");
 					BufferedReader reader = new BufferedReader(fr);
 					for (int j = 0; j < flopDataFileLineCnt; j++) {
 						String line = reader.readLine();
@@ -234,7 +245,7 @@ public class HandStrengthDataBaseConstructor {
 			}
 		}
 		holeCardsStrengths.finalize(preflopHoleCardOccurences);
-		FileWriter fileWriter = new FileWriter(path + "\\preflop.txt");
+		FileWriter fileWriter = new FileWriter(path + separator + "preflop.txt");
 		BufferedWriter writer = new BufferedWriter(fileWriter);
 		for (int i = 0; i < holeCardsStrengths.size(); i++) {
 			writer.write(holeCardsStrengths.get(i).toString().substring(0, 11) + "\n");
@@ -249,4 +260,5 @@ public class HandStrengthDataBaseConstructor {
 	static private final int preflopHoleCardOccurences = 19600;
 	static private final int flopHoleCardOccurences = 47;
 	static private final int turnHoleCardOccurences = 46;
+	static private String separator;
 }

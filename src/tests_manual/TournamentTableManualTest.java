@@ -4,7 +4,8 @@ import java.util.Scanner;
 
 import holdem.PlayerBase;
 import holdem.TournamentTable;
-import players.CandidStatistician;
+//import players.CandidStatistician;
+import players.UnpredictableGambler;
 
 public class TournamentTableManualTest implements ManualTest {
 
@@ -28,7 +29,7 @@ public class TournamentTableManualTest implements ManualTest {
 		boolean verbose = scanner.nextLine().equals("y");
 		TournamentTable tournament = new TournamentTable(SBAmt, ante, blindRaiseFrequency, size);
 		for (int i = 0; i < size; i++) {
-			PlayerBase player = (new CandidStatistician(i));
+			PlayerBase player = (new UnpredictableGambler(i));
 			player.deposit(buyInAmt);
 			player.buyIn(tournament, buyInAmt);
 		}
