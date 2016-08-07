@@ -66,14 +66,17 @@ public class Seat implements Comparable<Seat> {
 		if (player != null) player.observe(resultInfo);
 	}
 
-	void clear() {
+	PlayerBase clear() {
 		holeCards = null;
 		bet = 0;
 		active = false;
 		if (stack == 0 && player != null) {
 			player.seat = null;
+			PlayerBase removed = player;
 			player = null;
+			return removed;
 		}
+		return null;
 	}
 
 	PlayerBase player;

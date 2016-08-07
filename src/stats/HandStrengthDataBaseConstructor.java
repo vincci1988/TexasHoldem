@@ -12,17 +12,8 @@ import java.util.Collections;
 import holdem.*;
 
 public class HandStrengthDataBaseConstructor {
-
-	public static void main(String[] args) {
-		try {
-			String rootPath = "/Users/Xun";
-			MASSCompute_ConstructDB(rootPath);
-		} catch (Exception exception) {
-			System.out.println(exception);
-		}
-	}
 	
-	static private void MASSCompute_ConstructDB(String path) throws Exception {
+	static public void MASSCompute_ConstructDB(String path) throws Exception {
 		if (System.getProperty("os.name").contains("Windows")) separator = "\\";
 		else separator = "/";
 		File root = new File(path + separator + "HSDB");
@@ -70,7 +61,7 @@ public class HandStrengthDataBaseConstructor {
 							board.add(deck.get(i2));
 							board.add(deck.get(i3));
 							board.add(deck.get(i4));
-							board.add(deck.get(i5));
+							board.add(deck.get(i5));		
 							for (int i = 0; i < board.size(); i++)
 								deck.remove(board.get(i));
 							ArrayList<Hand> hands = new ArrayList<Hand>();
@@ -81,7 +72,7 @@ public class HandStrengthDataBaseConstructor {
 									Collections.sort(hands);
 								}
 							}
-							PrintWriter writer = new PrintWriter(path + separator + board + ".txt");
+							PrintWriter writer = new PrintWriter(path + separator + board + ".txt");			
 							for (int i = 0; i < hands.size(); i++) {
 								int better = 0;
 								HoleCards holeCards = hands.get(i).getHoleCards();

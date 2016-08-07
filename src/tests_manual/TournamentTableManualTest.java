@@ -4,8 +4,7 @@ import java.util.Scanner;
 
 import holdem.PlayerBase;
 import holdem.TournamentTable;
-//import players.CandidStatistician;
-import players.UnpredictableGambler;
+import players.CandidStatistician;
 
 public class TournamentTableManualTest implements ManualTest {
 
@@ -28,14 +27,18 @@ public class TournamentTableManualTest implements ManualTest {
 		System.out.print("Verbose(y/n)? ");
 		boolean verbose = scanner.nextLine().equals("y");
 		TournamentTable tournament = new TournamentTable(SBAmt, ante, blindRaiseFrequency, size);
-		for (int i = 0; i < size; i++) {
-			PlayerBase player = (new UnpredictableGambler(i));
-			player.deposit(buyInAmt);
-			player.buyIn(tournament, buyInAmt);
+		for (int j = 0; j < 10; j++) {
+			for (int i = 0; i < size; i++) {
+				PlayerBase player = (new CandidStatistician(i));
+				player.deposit(buyInAmt);
+				player.buyIn(tournament, buyInAmt);
+			}
+			if (verbose)
+				tournament.startVerbose();
+			else
+				tournament.start();
+			System.out.println("Test Completed!");
 		}
-		if (verbose) tournament.startVerbose();
-		else tournament.start();
-		System.out.println("Test Completed!");
 	}
 
 }

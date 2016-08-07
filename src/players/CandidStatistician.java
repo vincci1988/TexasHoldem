@@ -18,14 +18,21 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 		super(id);
 	}
 
+	public CandidStatistician(int id, double conservativeness, double baseRateFullTable, double baseRateHeadsUp) {
+		super(id);
+		this.conservativeness = conservativeness;
+		this.baseRateFullTable = baseRateFullTable;
+		this.baseRateHeadsUp = baseRateHeadsUp;
+	}
+
 	@Override
 	public ActionBase getAction(TableInfo info) throws Exception {
 		double handStrength = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
 		double baseStrength = getBaseStrength(info);
 		if (handStrength < baseStrength)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
-		int targetBet = (int) Math.round(
-				(getMyBet() + getMyStack()) * Math.pow((handStrength - baseStrength) / (1.0 - baseStrength), conservativeness));
+		int targetBet = (int) Math.round((getMyBet() + getMyStack())
+				* Math.pow((handStrength - baseStrength) / (1.0 - baseStrength), conservativeness));
 		if (info.currentBet >= targetBet) {
 			if (info.currentBet == getMyBet())
 				return new Check(this);
@@ -50,13 +57,13 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 	@Override
 	public void observe(ActionInfoBase actionInfo) {
 		// Do nothing
-		
+
 	}
 
 	@Override
 	public void observe(Result resultInfo) {
 		// Do nothing
-		
+
 	}
 
 	@Override
@@ -64,9 +71,7 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 		return "Candid Statistician (ID = " + id + ")";
 	}
 
-	//public static final String HSDBPath = "B:\\HSDB";
-	private static final double conservativeness = 3.0;
-	private static final double baseRateFullTable = 0.65;
-	private static final double baseRateHeadsUp = 0.5;
-	//private static HandStrengthEvaluator evaluator = new HandStrengthEvaluator(HSDBPath);
+	public double conservativeness = 3.0;
+	public double baseRateFullTable = 0.65;
+	public double baseRateHeadsUp = 0.5;
 }

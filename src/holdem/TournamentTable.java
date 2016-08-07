@@ -1,5 +1,8 @@
 package holdem;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class TournamentTable extends Table {
 
 	public TournamentTable(int SBAmt, int ante, int blindRaisingFrequency, int size) throws Exception {
@@ -9,6 +12,7 @@ public class TournamentTable extends Table {
 		this.blindRaisingFrequency = blindRaisingFrequency;
 		this.size = size;
 		gameCnt = 0;
+		performances = new HashMap<PlayerBase, Integer>();
 	}
 
 	public PlayerBase start() throws Exception {
@@ -33,9 +37,10 @@ public class TournamentTable extends Table {
 		ante = initialAnte;
 		gameCnt = 0;
 		while (getPlayerCnt() > 1) {
+			gameCnt++;
 			if (verbose) {
 				System.out.println("<BEGIN: GAME>");
-				System.out.println("<BEGIN: GAME INFO>\nGame[" + (++gameCnt) + "]: BB = $" + BBAmt + ", ante = $" + ante
+				System.out.println("<BEGIN: GAME INFO>\nGame[" + (gameCnt) + "]: BB = $" + BBAmt + ", ante = $" + ante
 						+ "\n<END: GAME INFO>");
 			}
 			game();
@@ -56,9 +61,26 @@ public class TournamentTable extends Table {
 				break;
 			}
 		}
+		performances.put(winner, 1);
 		return winner;
 	}
 
+	void cleanUp() {
+		ArrayList<PlayerBase> knockOuts = new ArrayList<PlayerBase>();
+		for (int i = 0; i < seatCnt; i++) {
+			PlayerBase removed = seats[i].clear();
+			if (removed != null)
+				knockOuts.add(removed);
+		}
+		int rank = getPlayerCnt() + 1;
+		for (int i = 0; i < knockOuts.size(); i++)
+			performances.put(knockOuts.get(i), rank);
+		pots.clear();
+		board.clear();
+		activePlayerCnt = 0;
+	}
+
+	public HashMap<PlayerBase, Integer> performances;
 	final int initialSB;
 	final int initialAnte;
 	final int blindRaisingFrequency;

@@ -10,7 +10,7 @@ public class Test {
 	public static void main(String[] args) {
 		try {
 			HumanTableManualTest test = new HumanTableManualTest();
-			//TournamentTableManualTest test = new TournamentTableManualTest();
+			//TournamentChampionMatch test = new TournamentChampionMatch();
 			test.run();
 		} catch (Exception exception) {
 			System.out.println(exception);

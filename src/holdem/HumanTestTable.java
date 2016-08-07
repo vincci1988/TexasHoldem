@@ -1,5 +1,7 @@
 package holdem;
 
+import java.util.ArrayList;
+
 import players.*;
 
 public class HumanTestTable extends Table {
@@ -9,6 +11,17 @@ public class HumanTestTable extends Table {
 		human = new HumanTester(0, testerName);
 		this.testerStack = testerStack;
 		mount(human);
+	}
+	
+	public void start(ArrayList<PlayerBase> AIPlayers, boolean cheat) throws Exception {
+		if (AIPlayers.size() < 1 || AIPlayers.size() > 9)
+			System.out.println("DEALER: Too few or too many players!");
+		else {
+			welcome();
+			for (int i = 0; i < AIPlayers.size(); i++)
+				mount(AIPlayers.get(i));
+			play(cheat);
+		}
 	}
 
 	// Calling Machine, Candid Statistician, Hothead Maniac, Scared Limper,
@@ -30,23 +43,27 @@ public class HumanTestTable extends Table {
 				mount(new ScaredLimper(++i));
 			for (; i < cmCnt + csCnt + hmCnt + slCnt + ugCnt;)
 				mount(new UnpredictableGambler(++i));
-			int gameCnt = 0;
-			for (; human.getMyStack() > 0;) {
-				System.out.println("\n<BEGIN: GAME>");
-				System.out.println("DEALER: GAME " + (++gameCnt));
-				if (cheat)
-					openGame();
-				else
-					game();
-				System.out.println(stackReport());
-				System.out.println("<END: GAME>\n");
-			}
-			System.out.println("DEALER: TEST TERMINATED!");
-			if (human.getMyStack() == 0)
-				System.out.println("DEALER: " + human.getName() + " is knocked out after " + gameCnt + " game(s)!!");
-			else
-				System.out.println("DEALER: " + human.getName() + " is the WINNER!!");
+			play(cheat);
 		}
+	}
+	
+	private void play(boolean cheat) throws Exception {
+		int gameCnt = 0;
+		for (; human.getMyStack() > 0 && getPlayerCnt() > 1;) {
+			System.out.println("\n<BEGIN: GAME>");
+			System.out.println("DEALER: GAME " + (++gameCnt));
+			if (cheat)
+				openGame();
+			else
+				game();
+			System.out.println(stackReport());
+			System.out.println("<END: GAME>\n");
+		}
+		System.out.println("DEALER: TEST TERMINATED!");
+		if (human.getMyStack() == 0)
+			System.out.println("DEALER: " + human.getName() + " is knocked out after " + gameCnt + " game(s)!!");
+		else
+			System.out.println("DEALER: " + human.getName() + " is the WINNER!!");
 	}
 
 	private boolean openGame() throws Exception {
@@ -74,7 +91,7 @@ public class HumanTestTable extends Table {
 		System.out.println(". Good luck!\n");
 	}
 
-	private void mount(PlayerBase player) {
+	public void mount(PlayerBase player) {
 		player.deposit(testerStack);
 		player.buyIn(this, testerStack);
 	}
