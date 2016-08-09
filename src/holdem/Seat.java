@@ -2,7 +2,7 @@ package holdem;
 
 public class Seat implements Comparable<Seat> {
 
-	Seat() {
+	public Seat() {
 		player = null;
 		bet = 0;
 		stack = 0;

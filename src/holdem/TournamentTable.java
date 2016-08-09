@@ -3,7 +3,7 @@ package holdem;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class TournamentTable extends Table {
+public class TournamentTable extends GameTable {
 
 	public TournamentTable(int SBAmt, int ante, int blindRaisingFrequency, int size) throws Exception {
 		super(SBAmt, ante);

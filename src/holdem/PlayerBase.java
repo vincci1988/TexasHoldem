@@ -24,7 +24,7 @@ public abstract class PlayerBase {
 			balance = 0;
 	}
 
-	public boolean buyIn(Table table, int amt) {
+	public boolean buyIn(TableBase table, int amt) {
 		if (amt > balance || amt <= 0)
 			return false;
 		seat = table.join(this, amt);

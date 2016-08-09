@@ -2,7 +2,7 @@ package holdem;
 
 public class PlayerInfo {
 	
-	PlayerInfo(Seat seat, Table table, int playersInFront) {
+	PlayerInfo(Seat seat, TableBase table, int playersInFront) {
 		name = seat.player.getName();
 		id = seat.player.id;
 		bet = seat.bet;

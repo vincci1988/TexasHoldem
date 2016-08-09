@@ -3,49 +3,15 @@ package holdem;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Table {
+public class GameTable extends TableBase {
 
-	public Table(int SBAmt, int ante) throws Exception {
-		seats = new Seat[seatCnt];
-		for (int i = 0; i < seatCnt; i++)
-			seats[i] = new Seat();
-		pots = new ArrayList<Pot>();
-		board = new Board();
+	public GameTable(int SBAmt, int ante) throws Exception {
+		super(SBAmt, ante, GameTable.seatCnt);
 		deck = new Deck();
-		currentBet = 0;
-		minRaise = 0;
-		Button = -1;
-		BBIndex = -1;
-		activePlayerCnt = 0;
-		playerCnt = 0;
-		this.ante = ante;
-		this.SBAmt = SBAmt;
-		BBAmt = 2 * SBAmt;
 	}
 
 	public TableInfo getTableInfo() {
 		return new TableInfo(this);
-	}
-
-	public int getPotSize() {
-		int total = 0;
-		for (int i = 0; i < pots.size(); i++)
-			total += pots.get(i).getPotSize();
-		for (int i = 0; i < seatCnt; i++)
-			total += seats[i].bet;
-		return total;
-	}
-
-	public int getActivePlayerCnt() {
-		return activePlayerCnt;
-	}
-
-	public int getPlayerCnt() {
-		int playerCnt = 0;
-		for (int i = 0; i < seatCnt; i++)
-			if (!seats[i].isEmpty())
-				playerCnt++;
-		return playerCnt;
 	}
 
 	public boolean game() throws Exception {
@@ -250,40 +216,8 @@ public class Table {
 		board.clear();
 		activePlayerCnt = 0;
 	}
-
-	int getNext(int index) {
-		while (seats[(index = (index + 1) % seatCnt)].isEmpty())
-			;
-		return index;
-	}
-
-	Seat join(PlayerBase player, int buyInAmt) {
-		Seat available = null;
-		for (int i = 0; i < seatCnt; i++) {
-			if (seats[i].isEmpty()) {
-				available = seats[i];
-				break;
-			}
-		}
-		if (available == null)
-			return null;
-		available.mount(player, buyInAmt);
-		return available;
-	}
-
-	protected Seat[] seats;
-	protected ArrayList<Pot> pots;
-	protected Board board;
+	
 	protected Deck deck;
-	protected int currentBet;
-	protected int minRaise;
-	protected int Button;
-	protected int BBIndex;
-	protected int activePlayerCnt;
-	protected int playerCnt;
-	protected int ante;
-	protected int SBAmt;
-	protected int BBAmt;
-
+	
 	public static final int seatCnt = 10;
 }

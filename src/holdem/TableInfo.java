@@ -4,15 +4,15 @@ import java.util.ArrayList;
 
 public class TableInfo {
 
-	TableInfo(Table table) {
+	TableInfo(TableBase table) {
 		playerInfos = new ArrayList<PlayerInfo>();
 		int playersInFront = 0;
-		int next = ((table.board.size() == 0 ? table.BBIndex : table.Button) + 1) % Table.seatCnt;
-		for (int i = 0; i < Table.seatCnt; i++) {
+		int next = ((table.board.size() == 0 ? table.BBIndex : table.Button) + 1) % table.seatCnt;
+		for (int i = 0; i < table.seatCnt; i++) {
 			Seat opponent = table.seats[next];
 			if (opponent.active && opponent.stack + opponent.bet > 0)
 				playerInfos.add(new PlayerInfo(table.seats[next], table, playersInFront++));
-			next = (next + 1) % Table.seatCnt;
+			next = (next + 1) % table.seatCnt;
 		}
 		board = table.board.toString();
 		boardForDisplay = table.board.display();

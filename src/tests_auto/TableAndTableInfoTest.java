@@ -3,14 +3,14 @@ package tests_auto;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import holdem.Table;
+import holdem.GameTable;
 import holdem.TableInfo;
 
 public class TableAndTableInfoTest {
 
 	@Test
 	public void testInitialStates() throws Exception {
-		Table table = new Table(100, 10);
+		GameTable table = new GameTable(100, 10);
 		TableInfo info = table.getTableInfo();
 		assertTrue("Info: board size.", info.board.length() == 0);
 		assertTrue("Info: BB Amt.", info.BBAmt == 200);
@@ -24,7 +24,7 @@ public class TableAndTableInfoTest {
 	
 	@Test
 	public void testPlayerCntCondition() throws Exception {
-		Table table = new Table(100, 10);
+		GameTable table = new GameTable(100, 10);
 		assertTrue(!table.game());
 	}
 

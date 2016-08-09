@@ -9,7 +9,7 @@ import holdem.Fold;
 import holdem.PlayerBase;
 import holdem.Raise;
 import holdem.Result;
-import holdem.Table;
+import holdem.GameTable;
 import holdem.TableInfo;
 
 public class CandidStatistician extends PlayerBase implements Statistician {
@@ -51,7 +51,7 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 
 	private double getBaseStrength(TableInfo info) {
 		int opponentCnt = info.playerInfos.size() - 1;
-		return baseRateHeadsUp + (opponentCnt - 1) * (baseRateFullTable - baseRateHeadsUp) / (Table.seatCnt - 2);
+		return baseRateHeadsUp + (opponentCnt - 1) * (baseRateFullTable - baseRateHeadsUp) / (GameTable.seatCnt - 2);
 	}
 
 	@Override

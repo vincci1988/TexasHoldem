@@ -1,5 +1,5 @@
-import Evolution.CandidStatisticianEvolution;
-import Evolution.EvolutionBase;
+import evolution.CandidStatisticianEvolution;
+import evolution.EvolutionBase;
 
 public class App {
 

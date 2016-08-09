@@ -1,4 +1,4 @@
-package Evolution;
+package evolution;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import players.*;
 
-public class HumanTestTable extends Table {
+public class HumanTestTable extends GameTable {
 
 	public HumanTestTable(int SBAmt, int ante, String testerName, int testerStack) throws Exception {
 		super(SBAmt, ante);

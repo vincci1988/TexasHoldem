@@ -1,4 +1,4 @@
-package Evolution;
+package evolution;
 
 import holdem.PlayerBase;
 
