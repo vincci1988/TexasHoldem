@@ -12,22 +12,28 @@ public class NLHeadsUpTable extends TableBase {
 		this.agent = agent;
 		this.opponent = opponent;
 		this.buyInAmt = buyInAmt;
-		this.maxGameCnt = maxGameCnt;
+		this.maxDeckCnt = maxGameCnt;
 		deck = new Deck();
 		gameCnt = 0;
-		agent.deposit(buyInAmt * maxGameCnt);
-		opponent.deposit(buyInAmt * maxGameCnt);
+		agentPerformance = 0;
+		agent.deposit(buyInAmt * maxGameCnt * 2);
+		opponent.deposit(buyInAmt * maxGameCnt * 2);
 	}
 
-	public void start(String logPath) throws Exception {
+	public double start(String logPath) throws Exception {
 		PrintWriter writer = new PrintWriter(logPath);
-		for (int i = 0; i < maxGameCnt; i++) {
+		for (int i = 0; i < maxDeckCnt; i++) {
+			deck.shuffle();
+			game();
+			writer.println(getReport() + "\n");
+			deck.reset();
 			game();
 			writer.println(getReport() + "\n");
 			if ((i + 1) % 100 == 0)
-				System.out.println("Game Cnt: " + (i + 1) + " / " + maxGameCnt);
+				System.out.println("Deck Cnt: " + (i + 1) + " / " + maxDeckCnt);
 		}
 		writer.close();
+		return agentPerformance;
 	}
 
 	@Override
@@ -49,7 +55,6 @@ public class NLHeadsUpTable extends TableBase {
 		Button = getNext(Button);
 		BBIndex = getNext(Button);
 		int next = (BBIndex + 1) % seatCnt;
-		deck.shuffle();
 		for (int i = 0; i < seatCnt; i++) {
 			seats[next].deal(deck);
 			next = (next + 1) % seatCnt;
@@ -217,11 +222,12 @@ public class NLHeadsUpTable extends TableBase {
 
 	String getReport() {
 		String report = "<BEGIN: PERFORMANCE REPORT>\n";
-		int agentNetWin = agent.getBalance() - maxGameCnt * buyInAmt;
+		int agentNetWin = agent.getBalance() - 2 * maxDeckCnt * buyInAmt;
 		report += (agent.getName() + ": " + agentNetWin + "\n");
-		report += (opponent.getName() + ": " + (opponent.getBalance() - maxGameCnt * buyInAmt) + "\n");
-		report += ("Agent Performance: " + (((double) agentNetWin) * 1000 / BBAmt / gameCnt) + " mBB/hand (" + gameCnt
-				+ " games)\n");
+		report += (opponent.getName() + ": " + (opponent.getBalance() - 2 * maxDeckCnt * buyInAmt) + "\n");
+		agentPerformance = (((double) agentNetWin) * 1000 / BBAmt / gameCnt);
+		report += ("Agent Performance: " + agentPerformance + " mBB/hand (DECK[" + ((gameCnt + 1) / 2)
+				+ "], GAME[" + gameCnt + "])\n");
 		report += "<END: PERFORMANCE REPORT>";
 		return report;
 	}
@@ -247,5 +253,7 @@ public class NLHeadsUpTable extends TableBase {
 
 	public static final int headsUpPlayerCnt = 2;
 	public static final int ante = 0;
-	public final int maxGameCnt;
+	public final int maxDeckCnt;
+	
+	private double agentPerformance;
 }

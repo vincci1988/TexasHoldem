@@ -118,6 +118,6 @@ public class CandidStatisticianEvolution extends EvolutionBase {
 	static final int roundsPerGen = 10;
 	static final double maxRateHeadsUp = 0.8;
 	static final double survivalRate = 0.2;
-	static final String logPath = "log.txt";
+	static final String logPath = "CandidStatisticianEvolutionLog.txt";
 	static int id = 0;
 }

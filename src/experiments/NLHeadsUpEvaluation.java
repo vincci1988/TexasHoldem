@@ -8,23 +8,25 @@ public class NLHeadsUpEvaluation implements Exp {
 
 	public NLHeadsUpEvaluation(String logPath) {
 		//Update to evaluate different agent / against different opponents
-		this.agent = new CandidStatistician(0);
-		this.opponent = new CallingMachine(1);
+		this.agent = new CandidStatistician(0, 2.195, 0.7147, 0.5669);
+		//this.opponent = new CandidStatistician(1, 1.57, 0.6312, 0.6119);
+		this.opponent = new HotheadManiac(1);
+		//this.opponent = new HumanTester(1, "xun");
 		this.logPath = logPath;
 	}
 	
 	@Override
 	public void run() throws Exception {
-		System.out.println("You are about to start a no-limit headsup manual test.");
-		System.out.println("Agent being tested: " + agent.getName());
+		System.out.println("You are about to start a no-limit headsup evaluation.");
+		System.out.println("Agent being evaluated: " + agent.getName());
 		System.out.println("Opponent: " + opponent.getName());
 		int SBAmt = 50;
 		int buyInAmt = 20000;
-		int maxGameCnt = 1000;
+		int maxDeckCnt = 1500;
 		System.out.println("SB amount: " + SBAmt);
 		System.out.println("Buy-in amount: " + buyInAmt);
-		NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponent, SBAmt, buyInAmt, maxGameCnt);
-		headsUpTable.start(logPath);
+		NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponent, SBAmt, buyInAmt, maxDeckCnt);
+		System.out.println("Agent Perforance: " + headsUpTable.start(logPath) + " mBB/hand");
 	}
 
 	PlayerBase agent;

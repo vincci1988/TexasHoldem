@@ -14,6 +14,10 @@ public class Deck extends ArrayList<Card> {
 	
 	public void shuffle() {
 		Collections.shuffle(this);
+		reset();
+	}
+	
+	public void reset() {
 		iterator = this.iterator();
 	}
 	
