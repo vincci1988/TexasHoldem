@@ -87,7 +87,7 @@ public abstract class PlayerBase {
 	}
 
 	public abstract ActionBase getAction(TableInfo info) throws IOException, Exception;
-
+	
 	void observe(ActionBase action, Board board) {
 		if (action.getClass() == Fold.class)
 			observe(new FoldInfo(action, board));

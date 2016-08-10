@@ -44,6 +44,22 @@ public class TableInfo {
 		report += "<END: TABLE INFO>";
 		return report;
 	}
+	
+	public String summarize() {
+		String summary = new String();
+		if (board.length() == 0)
+			summary += "Preflop: ";
+		else if (board.length() == 6)
+			summary += "Flop (" + boardForDisplay + "): ";
+		else if (board.length() == 8)
+			summary += "Turn (" + boardForDisplay + "): ";
+		else if (board.length() == 10)
+			summary += "River (" + boardForDisplay + "): ";
+		summary += "CB = " + currentBet + ", ";
+		summary += "MR = " + minRaise + ", ";
+		summary += "PS = " + potSize + " | ";
+		return summary;
+	}
 
 	public ArrayList<PlayerInfo> playerInfos;
 	public String board;

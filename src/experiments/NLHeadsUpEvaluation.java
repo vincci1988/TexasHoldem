@@ -6,13 +6,14 @@ import players.*;
 
 public class NLHeadsUpEvaluation implements Exp {
 
-	public NLHeadsUpEvaluation(String logPath) {
+	public NLHeadsUpEvaluation(String performanceLog, String gameLog) {
 		//Update to evaluate different agent / against different opponents
 		this.agent = new CandidStatistician(0, 2.195, 0.7147, 0.5669);
 		//this.opponent = new CandidStatistician(1, 1.57, 0.6312, 0.6119);
 		this.opponent = new HotheadManiac(1);
 		//this.opponent = new HumanTester(1, "xun");
-		this.logPath = logPath;
+		this.performanceLog = performanceLog;
+		this.gameLog = gameLog;
 	}
 	
 	@Override
@@ -26,10 +27,11 @@ public class NLHeadsUpEvaluation implements Exp {
 		System.out.println("SB amount: " + SBAmt);
 		System.out.println("Buy-in amount: " + buyInAmt);
 		NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponent, SBAmt, buyInAmt, maxDeckCnt);
-		System.out.println("Agent Perforance: " + headsUpTable.start(logPath) + " mBB/hand");
+		System.out.println("Agent Perforance: " + headsUpTable.start(performanceLog, gameLog) + " mBB/hand");
 	}
 
 	PlayerBase agent;
 	PlayerBase opponent;
-	String logPath;
+	String performanceLog;
+	String gameLog;
 }
