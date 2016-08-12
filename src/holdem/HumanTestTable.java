@@ -2,7 +2,8 @@ package holdem;
 
 import java.util.ArrayList;
 
-import players.*;
+import evolvable_players.*;
+import simple_players.*;
 
 public class HumanTestTable extends GameTable {
 

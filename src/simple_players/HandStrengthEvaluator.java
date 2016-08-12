@@ -1,4 +1,4 @@
-package players;
+package simple_players;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

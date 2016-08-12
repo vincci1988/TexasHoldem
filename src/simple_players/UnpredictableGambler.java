@@ -1,4 +1,4 @@
-package players;
+package simple_players;
 
 import java.util.ArrayList;
 import java.util.Random;

@@ -1,5 +1,8 @@
-package players;
+package evolvable_players;
 
+import evolvable_players.CandidStatisticianGenome;
+import evolvable_players.Evolvable;
+import evolvable_players.GenomeBase;
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
 import holdem.AllIn;
@@ -12,17 +15,33 @@ import holdem.Result;
 import holdem.GameTable;
 import holdem.TableInfo;
 
-public class CandidStatistician extends PlayerBase implements Statistician {
+public class CandidStatistician extends PlayerBase implements Statistician, Evolvable {
 
 	public CandidStatistician(int id) {
 		super(id);
+		genome = new CandidStatisticianGenome(3.0, 0.65, 0.5);
 	}
 
-	public CandidStatistician(int id, double conservativeness, double baseRateFullTable, double baseRateHeadsUp) {
+	public CandidStatistician(int id, CandidStatisticianGenome candidStatisticianGenome) {
 		super(id);
-		this.conservativeness = conservativeness;
-		this.baseRateFullTable = baseRateFullTable;
-		this.baseRateHeadsUp = baseRateHeadsUp;
+		this.genome = candidStatisticianGenome;
+	}
+	
+	public double getConservativeness() {
+		return genome.conservativeness;
+	}
+	
+	public double getBaseRateFullTable() {
+		return genome.baseRateFullTable;
+	}
+	
+	public double getBaseRateHeadsUp() {
+		return genome.baseRateHeadsUp;
+	}
+
+	@Override
+	public GenomeBase getGenome() {
+		return genome;
 	}
 
 	@Override
@@ -32,7 +51,7 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 		if (handStrength < baseStrength)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
 		int targetBet = (int) Math.round((getMyBet() + getMyStack())
-				* Math.pow((handStrength - baseStrength) / (1.0 - baseStrength), conservativeness));
+				* Math.pow((handStrength - baseStrength) / (1.0 - baseStrength), genome.conservativeness));
 		if (info.currentBet >= targetBet) {
 			if (info.currentBet == getMyBet())
 				return new Check(this);
@@ -51,7 +70,8 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 
 	private double getBaseStrength(TableInfo info) {
 		int opponentCnt = info.playerInfos.size() - 1;
-		return baseRateHeadsUp + (opponentCnt - 1) * (baseRateFullTable - baseRateHeadsUp) / (GameTable.seatCnt - 2);
+		return genome.baseRateHeadsUp
+				+ (opponentCnt - 1) * (genome.baseRateFullTable - genome.baseRateHeadsUp) / (GameTable.seatCnt - 2);
 	}
 
 	@Override
@@ -71,7 +91,5 @@ public class CandidStatistician extends PlayerBase implements Statistician {
 		return "Candid Statistician (ID = " + id + ")";
 	}
 
-	public double conservativeness = 3.0;
-	public double baseRateFullTable = 0.65;
-	public double baseRateHeadsUp = 0.5;
+	public CandidStatisticianGenome genome;
 }

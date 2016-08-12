@@ -9,7 +9,7 @@ public class Execution {
 		 * 2. CALL "RUN"
 		 */
 		try {
-			NLHeadsUpEvaluation test = new NLHeadsUpEvaluation("NLHeadsUpPerformance.txt", "NLHeadsUpGameLog");
+			NLHeadsUpEvaluation test = new NLHeadsUpEvaluation("NLHeadsUpPerformance.txt", "NLHeadsUpGameLog.txt");
 			// HumanTableManualTest test = new HumanTableManualTest();
 			// TournamentChampionMatch test = new TournamentChampionMatch();
 			test.run();

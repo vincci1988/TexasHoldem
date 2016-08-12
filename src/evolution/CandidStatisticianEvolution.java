@@ -4,9 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Collections;
 
+import evolvable_players.CandidStatistician;
+import evolvable_players.CandidStatisticianGenome;
 import holdem.PlayerBase;
 import holdem.TournamentTable;
-import players.CandidStatistician;
 
 public class CandidStatisticianEvolution extends EvolutionBase {
 
@@ -16,8 +17,8 @@ public class CandidStatisticianEvolution extends EvolutionBase {
 			double baseRateHeadsUp = 0.25 + 0.5 * random.nextDouble();
 			double baseRateFullTable = baseRateHeadsUp + (maxRateHeadsUp - baseRateHeadsUp) * random.nextDouble();
 			double conservativeness = 1.0 + 4.0 * random.nextDouble();
-			population
-					.add(new Agent(new CandidStatistician(id++, conservativeness, baseRateFullTable, baseRateHeadsUp)));
+			population.add(new Agent(new CandidStatistician(id++,
+					new CandidStatisticianGenome(conservativeness, baseRateFullTable, baseRateHeadsUp))));
 		}
 
 	}
@@ -37,6 +38,7 @@ public class CandidStatisticianEvolution extends EvolutionBase {
 			log.println("<END GENERATION " + (i + 1) + ">\n");
 		}
 		log.close();
+		((CandidStatistician) population.get(0).player).getGenome().writeToFile("CandidStatisticianChampionGenome.txt");
 	}
 
 	public String report() {
@@ -44,8 +46,8 @@ public class CandidStatisticianEvolution extends EvolutionBase {
 		for (int i = 0; i < population.size(); i++) {
 			CandidStatistician player = (CandidStatistician) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness + ", csvt = "
-					+ player.conservativeness + ", brft = " + player.baseRateFullTable + ", brhu = "
-					+ player.baseRateHeadsUp + "\n";
+					+ player.getConservativeness() + ", brft = " + player.getBaseRateFullTable() + ", brhu = "
+					+ player.getBaseRateHeadsUp() + "\n";
 		}
 		return res;
 	}
@@ -84,27 +86,11 @@ public class CandidStatisticianEvolution extends EvolutionBase {
 			CandidStatistician dad = null;
 			while ((dad = (CandidStatistician) population.get(random.nextInt(survivorCnt)).player) == mom)
 				;
-			CandidStatistician child = new CandidStatistician(id++, mom.conservativeness, dad.baseRateFullTable,
-					mom.baseRateHeadsUp);
-			mutate(child);
+			CandidStatisticianGenome childGenome = (CandidStatisticianGenome) mom.getGenome()
+					.crossOver(dad.getGenome());
+			childGenome.mutate(0, 0);
+			CandidStatistician child = new CandidStatistician(id++, childGenome);
 			population.add(new Agent(child));
-		}
-	}
-
-	private void mutate(CandidStatistician player) {
-		player.conservativeness += 0.25 * random.nextGaussian();
-		if (player.conservativeness < 1.0)
-			player.conservativeness = 1.0;
-		player.baseRateHeadsUp += 0.02 * random.nextGaussian();
-		if (player.baseRateHeadsUp < 0.25)
-			player.baseRateHeadsUp = 0.25;
-		player.baseRateFullTable += 0.02 * random.nextGaussian();
-		if (player.baseRateFullTable > 0.8)
-			player.baseRateFullTable = 0.8;
-		if (player.baseRateFullTable < player.baseRateHeadsUp) {
-			double temp = player.baseRateFullTable;
-			player.baseRateFullTable = player.baseRateHeadsUp;
-			player.baseRateHeadsUp = temp;
 		}
 	}
 

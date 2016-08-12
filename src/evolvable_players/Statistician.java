@@ -1,4 +1,4 @@
-package players;
+package evolvable_players;
 
 public interface Statistician {
 	//public static final String HSDBPath = "/Volumes/My Passport/HSDB";

@@ -13,7 +13,7 @@ public abstract class EvolutionBase {
 	abstract public void run() throws Exception;
 	
 	abstract void select() throws Exception;
-	abstract void reproduce();
+	abstract void reproduce() throws Exception;
 	
 	ArrayList<Agent> population;
 	protected static Random random;

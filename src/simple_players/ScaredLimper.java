@@ -1,4 +1,4 @@
-package players;
+package simple_players;
 
 import holdem.ActionBase;
 import holdem.ActionInfoBase;

@@ -1,31 +1,31 @@
-package players;
+package simple_players;
 
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
 import holdem.AllIn;
-import holdem.Call;
-import holdem.Check;
 import holdem.PlayerBase;
+import holdem.Raise;
 import holdem.Result;
 import holdem.TableInfo;
 
-public class CallingMachine extends PlayerBase {
+public class HotheadManiac extends PlayerBase {
 
-	public CallingMachine(int id) {
+	public HotheadManiac(int id) {
 		super(id);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public ActionBase getAction(TableInfo info) {
-		if (info.currentBet == 0) return new Check(this);
-		else if (info.currentBet < getMyBet() + getMyStack()) return new Call(this);
+		int bet = info.currentBet + info.minRaise * 2;
+		if (bet < getMyBet() + getMyStack()) return new Raise(this, bet);
 		return new AllIn(this);
 	}
 
 	@Override
 	public void observe(ActionInfoBase actionInfo) {
 		// Do nothing
+
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class CallingMachine extends PlayerBase {
 
 	@Override
 	public String getName() {
-		return "Calling Machine (ID = " + id + ")";
+		return "Hothead Maniac (ID = " + id + ")";
 	}
 
 }

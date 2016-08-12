@@ -2,9 +2,9 @@ package tests_manual;
 
 import java.util.Scanner;
 
+import evolvable_players.CandidStatistician;
 import holdem.PlayerBase;
 import holdem.TournamentTable;
-import players.CandidStatistician;
 
 public class TournamentTableManualTest implements ManualTest {
 
