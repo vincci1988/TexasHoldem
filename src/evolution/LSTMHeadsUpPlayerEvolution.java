@@ -7,15 +7,15 @@ import java.util.Collections;
 import evolvable_players.*;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
-//import simple_players.*;
+import simple_players.*;
 
 public class LSTMHeadsUpPlayerEvolution extends EvolutionBase {
 
 	public LSTMHeadsUpPlayerEvolution() throws IOException {
 		super();
-		opponent = new CandidStatistician(0, new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt"));
+		// opponent = new CandidStatistician(0, new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt"));
 		// opponent = new ScaredLimper(0);
-		// opponent = new HotheadManiac(0);
+		 opponent = new HotheadManiac(0);
 		avgSurvivorFitness = 0;
 		for (int i = 0; i < populationSize; i++)
 			population.add(new Agent(new LSTMHeadsUpPlayer(id++)));
@@ -99,8 +99,8 @@ public class LSTMHeadsUpPlayerEvolution extends EvolutionBase {
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
-	static final double mutationRate = 0.5;
-	static final double mutationStrength = 0.2;
+	static final double mutationRate = 0.1;
+	static final double mutationStrength = 0.5;
 	static final String logPath = "LSTMHeadsUpPlayerEvolutionLog.txt";
 	static int id = 0;
 }

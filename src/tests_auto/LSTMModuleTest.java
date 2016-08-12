@@ -56,9 +56,9 @@ public class LSTMModuleTest {
 		input[x.length + 2] = lstm.cellState;
 		double cellState = Module.sigmoid(Module.dotProduct(input, lstm.forgetGateWeights)) * lstm.cellState
 				+ Module.sigmoid(Module.dotProduct(input, lstm.inputGateWeights))
-						* Module.sigmoid(Module.dotProduct(input, lstm.inputWeights));
+						* Module.tanh(Module.dotProduct(input, lstm.inputWeights));
 		input[x.length + 2] = cellState;
-		double output = Module.sigmoid(cellState) * Module.sigmoid(Module.dotProduct(input, lstm.outputGateWeights));
+		double output = Module.tanh(cellState) * Module.sigmoid(Module.dotProduct(input, lstm.outputGateWeights));
 		return output;
 	}
 

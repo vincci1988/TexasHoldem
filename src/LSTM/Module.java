@@ -12,10 +12,10 @@ public class Module {
 		outputGateWeights = new double[inputSize + 3];
 		Random rand = new Random();
 		for (int i = 0; i < inputSize + 3; i++) {
-			inputWeights[i] = (rand.nextDouble());
-			inputGateWeights[i] = (rand.nextDouble());
-			forgetGateWeights[i] = (rand.nextDouble());
-			outputGateWeights[i] = (rand.nextDouble());
+			inputWeights[i] = (rand.nextGaussian());
+			inputGateWeights[i] = (rand.nextGaussian());
+			forgetGateWeights[i] = (rand.nextGaussian());
+			outputGateWeights[i] = (rand.nextGaussian());
 		}
 		cellState = 0;
 		output = 0;
@@ -64,11 +64,11 @@ public class Module {
 		input[x.length + 2] = cellState;
 		double forgetGateOutput = sigmoid(dotProduct(input, forgetGateWeights));
 		double inputGateOutput = sigmoid(dotProduct(input, inputGateWeights));
-		double cellStateUpdate = sigmoid(dotProduct(input, inputWeights));
+		double cellStateUpdate = tanh(dotProduct(input, inputWeights));
 		cellState = forgetGateOutput * cellState + inputGateOutput * cellStateUpdate;
 		input[x.length + 2] = cellState;
 		double outputGateOutput = sigmoid(dotProduct(input, outputGateWeights));
-		output = outputGateOutput * sigmoid(cellState);
+		output = outputGateOutput * tanh(cellState);
 		return output;
 	}
 
@@ -83,6 +83,10 @@ public class Module {
 
 	static public double sigmoid(double x) {
 		return 1.0 / (1.0 + Math.exp(-x));
+	}
+	
+	static public double tanh(double x) {
+		return (Math.exp(x) - Math.exp(-x)) / (Math.exp(x) + Math.exp(-x));
 	}
 
 	public final int inputSize;

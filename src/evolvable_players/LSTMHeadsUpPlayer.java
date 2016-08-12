@@ -41,7 +41,7 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 		 */
 		double[] input = new double[inputSize];
 		for (int i = 0; i < input.length; i++)
-			input[i] = 0.0;
+			input[i] = -1.0;
 		if (info.board.length() == 0)
 			input[0] = 1.0;
 		else if (info.board.length() == 6)
@@ -65,11 +65,11 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 		}
 		double previousBet = info.potSize - opponentBet - myBet;
 		input[4] = previousBet / 2.0 + myBet;
-		input[4] /= (input[4] + myStack);
+		input[4] = 2* input[4] / (input[4] + myStack) - 1.0;
 		input[5] = previousBet / 2.0 + opponentBet;
-		input[5] /= (input[5] + opponentStack);
-		input[6] = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
-		double handStrength = lstm.activate(input);
+		input[5] = 2 * input[5] / (input[5] + opponentStack) - 1.0;
+		input[6] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
+		double handStrength = (lstm.activate(input) + 1.0) / 2;
 		double baseStrength = 0.5;
 		if (handStrength < baseStrength)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);

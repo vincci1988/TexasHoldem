@@ -2,10 +2,7 @@ package experiments;
 
 import java.io.IOException;
 
-import evolvable_players.CandidStatistician;
-import evolvable_players.CandidStatisticianGenome;
-import evolvable_players.LSTMHeadsUpPlayer;
-import evolvable_players.LSTMHeadsUpPlayerGenome;
+import evolvable_players.*;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
 import simple_players.HumanTester;
