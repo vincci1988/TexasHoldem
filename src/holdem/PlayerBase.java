@@ -34,6 +34,12 @@ public abstract class PlayerBase {
 	public boolean leave() {
 		return (seat == null) ? true : seat.unmount();
 	}
+	
+	public double getPotOdds(TableInfo info) {
+		double amtToCall = info.currentBet - getMyBet();
+		if (amtToCall > getMyStack()) amtToCall = getMyStack();
+		return amtToCall / (amtToCall + info.potSize);
+	}
 
 	protected String peek() {
 		return seat == null ? null : seat.getHoleCards();

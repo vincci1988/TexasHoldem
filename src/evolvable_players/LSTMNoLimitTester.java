@@ -2,10 +2,7 @@ package evolvable_players;
 
 import java.io.IOException;
 
-import LSTM.Cell;
-import evolvable_players.Evolvable;
-import evolvable_players.GenomeBase;
-import evolvable_players.LSTMHeadsUpPlayerGenome;
+import LSTM.*;
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
 import holdem.AllIn;
@@ -17,20 +14,39 @@ import holdem.Raise;
 import holdem.Result;
 import holdem.TableInfo;
 
-public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolvable {
+public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statistician {
 
-	public LSTMHeadsUpPlayer(int id) {
+	public LSTMNoLimitTester(int id) {
 		super(id);
-		lstm = new Cell(inputSize);
+		lstms = new Cell[cellCnt];
+		for (int i = 0; i < cellCnt; i++)
+			lstms[i] = new Cell(inputSize);
 	}
-	
-	public LSTMHeadsUpPlayer(int id, LSTMHeadsUpPlayerGenome childGenome) throws Exception {
+
+	public LSTMNoLimitTester(int id, LSTMNoLimitTesterGenome childGenome) throws Exception {
 		super(id);
-		lstm = new Cell(childGenome.getGenes());
+		lstms = new Cell[cellCnt];
+		int cellGenomeLength = (inputSize + 3) * 4 + 1;
+		double[] cellGenome = new double[cellGenomeLength];
+		for (int i = 0; i < cellCnt; i++) {
+			for (int j = 0; j < cellGenomeLength; j++) {
+				cellGenome[j] = childGenome.getGenes()[j + i * cellGenomeLength];
+			}
+			lstms[i] = new Cell(cellGenome);
+		}
 	}
-	
+
+	@Override
 	public GenomeBase getGenome() {
-		return new LSTMHeadsUpPlayerGenome(lstm.getGenome());
+		int cellGenomeLength = (inputSize + 3) * 4 + 1;
+		double[] genome = new double[cellCnt * cellGenomeLength];
+		for (int i = 0; i < cellCnt; i++) {
+			double[] cellGenome = lstms[i].getGenome();
+			for (int j = 0; j < cellGenomeLength; j++) {
+				genome[j + i * cellGenomeLength] = cellGenome[j];
+			}
+		}
+		return new LSTMNoLimitTesterGenome(genome);
 	}
 
 	@Override
@@ -56,7 +72,7 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 		input[1] = 2 * opponentBet / opponentTotal - 1.0;
 		input[2] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
 		input[3] = 4 * (getPotOdds(info) - 0.25);
-		double opportunity = lstm.activate(input);
+		double opportunity = lstms[0].activate(input);
 		if (opportunity < 0)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
 		int targetBet = (int) Math.round((getMyBet() + getMyStack()) * opportunity);
@@ -84,15 +100,17 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 
 	@Override
 	public void observe(Result resultInfo) {
-		lstm.reset();
+		for (int i = 0; i < cellCnt; i++)
+			lstms[i].reset();
 	}
 
 	@Override
 	public String getName() {
-		return "LSTM Heads-up Player (ID = " + id + ")";
+		return "LSTM Challenger (ID = " + id + ")";
 	}
 
-	private Cell lstm;
+	Cell[] lstms;
 
-	static public final int inputSize = 4;
+	public static final int inputSize = 4;
+	public static final int cellCnt = 1;
 }

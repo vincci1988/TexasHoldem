@@ -47,7 +47,8 @@ public class CandidStatistician extends PlayerBase implements Statistician, Evol
 	@Override
 	public ActionBase getAction(TableInfo info) throws Exception {
 		double handStrength = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
-		double baseStrength = getBaseStrength(info);
+		//double baseStrength = getBaseStrength(info);
+		double baseStrength = getPotOdds(info);
 		if (handStrength < baseStrength)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
 		int targetBet = (int) Math.round((getMyBet() + getMyStack())
@@ -68,6 +69,7 @@ public class CandidStatistician extends PlayerBase implements Statistician, Evol
 		return getMyBet() == info.currentBet ? new Check(this) : new Call(this);
 	}
 
+	@SuppressWarnings("unused")
 	private double getBaseStrength(TableInfo info) {
 		int opponentCnt = info.playerInfos.size() - 1;
 		return genome.baseRateHeadsUp

@@ -5,16 +5,18 @@ import java.io.IOException;
 import evolvable_players.*;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
-import simple_players.HumanTester;
+import simple_players.*;
 
 public class NLHeadsUpEvaluation implements Exp {
 
 	public NLHeadsUpEvaluation(String performanceLog, String gameLog) throws IOException, Exception {
 		//Update to evaluate different agent / against different opponents
 		//this.agent = new CandidStatistician(0, new CandidStatisticianGenome(2.195, 0.7147, 0.5669));
-		//this.opponent = new CandidStatistician(1, 1.57, 0.6312, 0.6119);
 		this.agent = new LSTMHeadsUpPlayer(0, new LSTMHeadsUpPlayerGenome("LSTMHeadsUpChampionGenome.txt"));
-		this.opponent = new HumanTester(1, "xun");
+		//CandidStatisticianGenome genome = new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt");
+		//this.opponent = new CandidStatistician(1, genome);
+		//this.opponent = new HotheadManiac(1);
+		this.opponent = new ScaredLimper(1);
 		this.performanceLog = performanceLog;
 		this.gameLog = gameLog;
 	}
@@ -26,7 +28,7 @@ public class NLHeadsUpEvaluation implements Exp {
 		System.out.println("Opponent: " + opponent.getName());
 		int SBAmt = 50;
 		int buyInAmt = 20000;
-		int maxDeckCnt = 10;
+		int maxDeckCnt = 1500;
 		System.out.println("SB amount: " + SBAmt);
 		System.out.println("Buy-in amount: " + buyInAmt);
 		NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponent, SBAmt, buyInAmt, maxDeckCnt);

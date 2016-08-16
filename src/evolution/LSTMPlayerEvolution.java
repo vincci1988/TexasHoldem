@@ -9,13 +9,15 @@ import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
 import simple_players.*;
 
-public class LSTMHeadsUpPlayerEvolution extends EvolutionBase {
+@SuppressWarnings("unused")
+public class LSTMPlayerEvolution extends EvolutionBase {
 
-	public LSTMHeadsUpPlayerEvolution() throws IOException {
+	public LSTMPlayerEvolution() throws IOException {
 		super();
-		// opponent = new CandidStatistician(0, new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt"));
+		opponent = new CandidStatistician(0, new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt"));
 		// opponent = new ScaredLimper(0);
-		 opponent = new HotheadManiac(0);
+		// opponent = new HotheadManiac(0);
+		// opponent = new CallingMachine(0);
 		avgSurvivorFitness = 0;
 		for (int i = 0; i < populationSize; i++)
 			population.add(new Agent(new LSTMHeadsUpPlayer(id++)));
@@ -37,7 +39,7 @@ public class LSTMHeadsUpPlayerEvolution extends EvolutionBase {
 		}
 		log.close();
 		LSTMHeadsUpPlayer champion = (LSTMHeadsUpPlayer) population.get(0).player;
-		((LSTMHeadsUpPlayerGenome)champion.getGenome()).writeToFile("LSTMHeadsUpChampionGenome.txt");
+		((LSTMHeadsUpPlayerGenome)champion.getGenome()).writeToFile("LSTMHeadsUpPlayerGenome.txt");
 		NLHeadsUpTable headsUpTable = new NLHeadsUpTable(champion, opponent, SBAmt, buyInAmt, champDeckCnt);
 		System.out.println(
 				"Champion fitness = " + headsUpTable.start("NLHeadsUpPerformance.txt", "NLHeadsUpGameLog.txt"));
@@ -82,7 +84,7 @@ public class LSTMHeadsUpPlayerEvolution extends EvolutionBase {
 				;
 			LSTMHeadsUpPlayerGenome dadGenome = (LSTMHeadsUpPlayerGenome)dad.getGenome();
 			LSTMHeadsUpPlayerGenome momGenome = (LSTMHeadsUpPlayerGenome)mom.getGenome();
-			LSTMHeadsUpPlayerGenome childGenome = (LSTMHeadsUpPlayerGenome) dadGenome.crossOver(momGenome);
+			LSTMHeadsUpPlayerGenome childGenome = (LSTMHeadsUpPlayerGenome)momGenome.crossOver(dadGenome);
 			childGenome.mutate(mutationRate, mutationStrength);
 			LSTMHeadsUpPlayer child = new LSTMHeadsUpPlayer(id++, childGenome);
 			population.add(new Agent(child));
@@ -100,7 +102,7 @@ public class LSTMHeadsUpPlayerEvolution extends EvolutionBase {
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
 	static final double mutationRate = 0.1;
-	static final double mutationStrength = 0.5;
+	static final double mutationStrength = 0.25;
 	static final String logPath = "LSTMHeadsUpPlayerEvolutionLog.txt";
 	static int id = 0;
 }

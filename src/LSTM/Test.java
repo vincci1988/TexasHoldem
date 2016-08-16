@@ -5,7 +5,7 @@ public class Test {
 	public static void main(String[] args) {
 
 		try {
-			Module lstm = new Module(3);
+			Cell lstm = new Cell(3);
 			double[] x = new double[3];
 			x[0] = 0.25;
 			x[1] = -1;

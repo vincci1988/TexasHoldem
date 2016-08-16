@@ -5,40 +5,40 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
 
-public class LSTMHeadsUpPlayerGenome extends NumericGenome {
+public class LSTMNoLimitTesterGenome extends NumericGenome {
 
-	public LSTMHeadsUpPlayerGenome(double[] genes) {
+	public LSTMNoLimitTesterGenome(double[] genes) {
 		super(genes);
 	}
-	
-	public LSTMHeadsUpPlayerGenome(String genomeFile) throws IOException {
+
+	public LSTMNoLimitTesterGenome(String genomeFile) throws IOException {
 		super(null);
 		FileReader fileReader = new FileReader(genomeFile);
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
-		int inputSize = (int)Double.parseDouble(bufferedReader.readLine());
-		int geneLength = (inputSize + 3) * 4 + 1;
-		genes = new double[geneLength];
+		int inputSize = (int) Double.parseDouble(bufferedReader.readLine());
+		int genomeLength = ((inputSize + 3) * 4 + 1) * LSTMNoLimitTester.cellCnt;
+		genes = new double[genomeLength];
 		genes[0] = inputSize;
-		for (int i = 1; i < geneLength; i++)
+		for (int i = 1; i < genomeLength; i++)
 			genes[i] = Double.parseDouble(bufferedReader.readLine());
 		bufferedReader.close();
 	}
 
 	public void mutate(double mutationRate, double mutationStrength) {
 		Random rand = new Random();
-		for (int i = 1; i < genes.length; i++)
-			if (rand.nextDouble() < mutationRate)
+		int cellGenomeLength = ((int)genes[0] + 3) * 4 + 1;
+		for (int i = 0; i < genes.length; i++)
+			if (i % cellGenomeLength != 0 && rand.nextDouble() < mutationRate)
 				genes[i] += mutationStrength * rand.nextGaussian();
 	}
-	
+
 	@Override
 	public GenomeBase crossOver(GenomeBase spouseGenome) {
 		double[] childGenes = new double[genes.length];
 		for (int i = 0; i < genes.length; i++) {
 			if (i % 2 == 0) childGenes[i] = genes[i];
-			else childGenes[i] = ((LSTMHeadsUpPlayerGenome)spouseGenome).getGenes()[i];
+			else childGenes[i] = ((LSTMNoLimitTesterGenome)spouseGenome).getGenes()[i];
 		}
-		return new LSTMHeadsUpPlayerGenome(childGenes);
+		return new LSTMNoLimitTesterGenome(childGenes);
 	}
-
 }
