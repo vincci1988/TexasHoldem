@@ -1,6 +1,6 @@
 package experiments;
 
-public class Execution {
+public class Executable {
 
 	public static void main(String[] args) {
 		/**

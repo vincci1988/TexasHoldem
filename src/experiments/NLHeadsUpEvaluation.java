@@ -7,16 +7,17 @@ import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
 import simple_players.*;
 
+@SuppressWarnings("unused")
 public class NLHeadsUpEvaluation implements Exp {
 
 	public NLHeadsUpEvaluation(String performanceLog, String gameLog) throws IOException, Exception {
 		//Update to evaluate different agent / against different opponents
 		//this.agent = new CandidStatistician(0, new CandidStatisticianGenome(2.195, 0.7147, 0.5669));
-		this.agent = new LSTMHeadsUpPlayer(0, new LSTMHeadsUpPlayerGenome("LSTMHeadsUpChampionGenome.txt"));
-		//CandidStatisticianGenome genome = new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt");
-		//this.opponent = new CandidStatistician(1, genome);
+		this.agent = new LSTMHeadsUpPlayer(0, new LSTMHeadsUpPlayerGenome("LSTMHeadsUpPlayerGenome.txt"));
+		CandidStatisticianGenome genome = new CandidStatisticianGenome("CandidStatisticianChampionGenome.txt");
+		this.opponent = new CandidStatistician(1, genome);
 		//this.opponent = new HotheadManiac(1);
-		this.opponent = new ScaredLimper(1);
+		//this.opponent = new ScaredLimper(1);
 		this.performanceLog = performanceLog;
 		this.gameLog = gameLog;
 	}
