@@ -30,6 +30,8 @@ public class NLHeadsUpTable extends TableBase {
 	}
 	
 	public double start() throws Exception {
+		agent.matchStart();
+		opponent.matchStart();
 		log = false;
 		for (int i = 0; i < maxDeckCnt; i++) {
 			deck = decks[i];
@@ -37,6 +39,8 @@ public class NLHeadsUpTable extends TableBase {
 			game();
 			getReport();
 		}
+		agent.matchStart();
+		opponent.matchStart();
 		if (maxDeckCnt % 2 == 0) {
 			Button = (Button + 1) % headsUpPlayerCnt;
 			BBIndex = (Button + 1) % headsUpPlayerCnt;;
@@ -54,6 +58,8 @@ public class NLHeadsUpTable extends TableBase {
 		log = true;
 		PrintWriter performanceLogWriter = new PrintWriter(performanceLog);
 		gameLogWriter = new PrintWriter(gameLog);
+		agent.matchStart();
+		opponent.matchStart();
 		for (int i = 0; i < maxDeckCnt; i++) {
 			gameLogWriter.println("<BEGIN: GAME " + (i + 1) + ">");
 			deck = decks[i];
@@ -62,6 +68,8 @@ public class NLHeadsUpTable extends TableBase {
 			gameLogWriter.println("<END: GAME " + (i + 1) + ">\n");
 			performanceLogWriter.println(getReport() + "\n");
 		}
+		agent.matchStart();
+		opponent.matchStart();
 		if (maxDeckCnt % 2 == 0) {
 			Button = (Button + 1) % headsUpPlayerCnt;
 			BBIndex = (Button + 1) % headsUpPlayerCnt;;
@@ -96,6 +104,8 @@ public class NLHeadsUpTable extends TableBase {
 		gameCnt++;
 		agent.buyIn(this, buyInAmt);
 		opponent.buyIn(this, buyInAmt);
+		agent.gameStart();
+		opponent.gameStart();
 		playerCnt = 2;
 		deal();
 		if (preflop() || flop() || turn() || river())
@@ -217,7 +227,7 @@ public class NLHeadsUpTable extends TableBase {
 		}
 	}
 
-	private void broadcast(Result resultInfo) {
+	private void broadcast(Result resultInfo) throws Exception {
 		if (log) gameLogWriter.print(resultInfo);
 		for (int i = 0; i < seatCnt; i++)
 			seats[i].receive(resultInfo);
@@ -262,7 +272,7 @@ public class NLHeadsUpTable extends TableBase {
 		}
 	}
 
-	protected void winBeforeShowdown() {
+	protected void winBeforeShowdown() throws Exception {
 		Seat winner = pots.get(0).getSeat(0);
 		winner.stack += getPotSize();
 		broadcast(new WinBeforeShowdown(winner.player, getPotSize(), board));

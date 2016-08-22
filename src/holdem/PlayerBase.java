@@ -23,6 +23,10 @@ public abstract class PlayerBase {
 		if (balance < 0)
 			balance = 0;
 	}
+	
+	public int getID() {
+		return id;
+	}
 
 	public boolean buyIn(TableBase table, int amt) {
 		if (amt > balance || amt <= 0)
@@ -67,6 +71,14 @@ public abstract class PlayerBase {
 	Seat getSeat() {
 		return seat;
 	}
+	
+	public void gameStart() {
+		//Defualt implementation: Do nothing;
+	}
+	
+	public void matchStart() {
+		//Defualt implementation: Do nothing;
+	}
 
 	ActionBase move(TableInfo info) throws Exception {
 		if (info.playerInfos.size() < 2) return null;
@@ -108,7 +120,7 @@ public abstract class PlayerBase {
 	}
 
 	public abstract void observe(ActionInfoBase actionInfo);
-	public abstract void observe(Result resultInfo) ;
+	public abstract void observe(Result resultInfo) throws Exception ;
 	public abstract String getName();
 	
 	protected final int id;

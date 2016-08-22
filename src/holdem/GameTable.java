@@ -18,6 +18,9 @@ public class GameTable extends TableBase {
 		playerCnt = getPlayerCnt();
 		if (playerCnt < 2)
 			return false;
+		for (int i = 0; i < seatCnt; i++)
+			if (!seats[i].isEmpty())
+				seats[i].player.gameStart();
 		deal();
 		if (preflop() || flop() || turn() || river())
 			winBeforeShowdown();
@@ -129,7 +132,7 @@ public class GameTable extends TableBase {
 		}
 	}
 
-	void broadcast(Result resultInfo) {
+	void broadcast(Result resultInfo) throws Exception {
 		for (int i = 0; i < seatCnt; i++)
 			seats[i].receive(resultInfo);
 	}
@@ -162,7 +165,8 @@ public class GameTable extends TableBase {
 					if (bets.get(i).active)
 						pot.seats.add(bets.get(i));
 					bets.get(i).bet -= bet;
-					if (bets.get(i).stack == 0) pot.isFull = true;
+					if (bets.get(i).stack == 0)
+						pot.isFull = true;
 					if (bets.get(i).bet == 0)
 						bets.remove(i);
 					else
@@ -172,7 +176,7 @@ public class GameTable extends TableBase {
 		}
 	}
 
-	protected void winBeforeShowdown() {
+	protected void winBeforeShowdown() throws Exception {
 		Seat winner = pots.get(0).getSeat(0);
 		winner.stack += getPotSize();
 		broadcast(new WinBeforeShowdown(winner.player, getPotSize(), board));
@@ -198,11 +202,11 @@ public class GameTable extends TableBase {
 		}
 		broadcast(new Showdown(board, potResults));
 	}
-	
+
 	String stackReport() {
 		String report = "<BEGIN: STACK REPORT>\n";
 		for (int i = 0; i < seats.length; i++) {
-			if (seats[i].player != null) 
+			if (seats[i].player != null)
 				report += (seats[i].player.getName() + ": " + seats[i].stack + "\n");
 		}
 		report += "<END: STACK REPORT>";
@@ -216,8 +220,8 @@ public class GameTable extends TableBase {
 		board.clear();
 		activePlayerCnt = 0;
 	}
-	
+
 	protected Deck deck;
-	
+
 	public static final int seatCnt = 10;
 }

@@ -57,9 +57,9 @@ public class LSTMCellTest {
 		input[x.length + 2] = lstm.cellState;
 		double cellState = Misc.sigmoid(Misc.dotProduct(input, lstm.forgetGateWeights)) * lstm.cellState
 				+ Misc.sigmoid(Misc.dotProduct(input, lstm.inputGateWeights))
-						* Misc.tanh(Misc.dotProduct(input, lstm.inputWeights));
+						* Math.tanh(Misc.dotProduct(input, lstm.inputWeights));
 		input[x.length + 2] = cellState;
-		double output = Misc.tanh(cellState) * Misc.sigmoid(Misc.dotProduct(input, lstm.outputGateWeights));
+		double output = Math.tanh(cellState) * Misc.sigmoid(Misc.dotProduct(input, lstm.outputGateWeights));
 		return output;
 	}
 

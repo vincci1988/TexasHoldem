@@ -19,7 +19,7 @@ public class CandidStatistician extends PlayerBase implements Statistician, Evol
 
 	public CandidStatistician(int id) {
 		super(id);
-		genome = new CandidStatisticianGenome(3.0, 0.65, 0.5);
+		genome = new CandidStatisticianGenome(3.2068309283146066, 0.5794769876671096, 0.7321911965473042);
 	}
 
 	public CandidStatistician(int id, CandidStatisticianGenome candidStatisticianGenome) {
@@ -47,8 +47,8 @@ public class CandidStatistician extends PlayerBase implements Statistician, Evol
 	@Override
 	public ActionBase getAction(TableInfo info) throws Exception {
 		double handStrength = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
-		//double baseStrength = getBaseStrength(info);
-		double baseStrength = getPotOdds(info);
+		double baseStrength = getPotOdds(info);  //CS2.0
+		//double baseStrength = genome.baseRateHeadsUp;  //CS1.0
 		if (handStrength < baseStrength)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
 		int targetBet = (int) Math.round((getMyBet() + getMyStack())

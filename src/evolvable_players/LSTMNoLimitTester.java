@@ -18,40 +18,87 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	public LSTMNoLimitTester(int id) {
 		super(id);
-		lstms = new Cell[cellCnt];
-		for (int i = 0; i < cellCnt; i++)
-			lstms[i] = new Cell(inputSize);
+		inputCells = new Cell[inputCellCnt];
+		for (int i = 0; i < inputCellCnt; i++)
+			inputCells[i] = new Cell(gameNodeInputSize);
+		hiddenCells = new Cell[hiddenCellCnt];
+		for (int i = 0; i < hiddenCellCnt; i++)
+			hiddenCells[i] = new Cell(hiddenInputSize);
+		oNet = new StdNetwork(inputCellCnt, oNetHiddenCnt, oNetOutputCnt);
+		iNet = new StdNetwork(gameNodeInputSize, iNetHiddenCnt, iNetOutputCnt);
+		myPrevCommitment = 0.0;
+		opponentPrevCommitment = 0.0;
 	}
 
 	public LSTMNoLimitTester(int id, LSTMNoLimitTesterGenome childGenome) throws Exception {
 		super(id);
-		lstms = new Cell[cellCnt];
-		int cellGenomeLength = (inputSize + 3) * 4 + 1;
-		double[] cellGenome = new double[cellGenomeLength];
-		for (int i = 0; i < cellCnt; i++) {
-			for (int j = 0; j < cellGenomeLength; j++) {
-				cellGenome[j] = childGenome.getGenes()[j + i * cellGenomeLength];
+		inputCells = new Cell[inputCellCnt];
+		hiddenCells = new Cell[hiddenCellCnt];
+		int inputCellGenomeLength = (gameNodeInputSize + 3) * 4 + 1;
+		double[] inputCellGenome = new double[inputCellGenomeLength];
+		for (int i = 0; i < inputCellCnt; i++) {
+			for (int j = 0; j < inputCellGenomeLength; j++) {
+				inputCellGenome[j] = childGenome.getGenes()[j + i * inputCellGenomeLength];
 			}
-			lstms[i] = new Cell(cellGenome);
+			inputCells[i] = new Cell(inputCellGenome);
 		}
+		int hiddenCellGenomeLength = (hiddenInputSize + 3) * 4 + 1;
+		double[] hiddenCellGenome = new double[hiddenCellGenomeLength];
+		for (int i = 0; i < hiddenCellCnt; i++) {
+			for (int j = 0; j < hiddenCellGenomeLength; j++) {
+				hiddenCellGenome[j] = childGenome.getGenes()[j + i * hiddenCellGenomeLength
+						+ inputCellCnt * (inputCellGenomeLength)];
+			}
+			hiddenCells[i] = new Cell(hiddenCellGenome);
+		}
+		int oNetStart = inputCellCnt * inputCellGenomeLength + hiddenCellCnt * hiddenCellGenomeLength;
+		int oNetLength = inputCellCnt * 2 + (inputCellCnt + 1) * oNetHiddenCnt + (oNetHiddenCnt + 1) * oNetOutputCnt;
+		oNet = new StdNetwork(inputCellCnt, oNetHiddenCnt, oNetOutputCnt,
+				Misc.subArray(childGenome.getGenes(), oNetStart, oNetLength));
+		iNet = new StdNetwork(gameNodeInputSize, iNetHiddenCnt, iNetOutputCnt,
+				Misc.tail(childGenome.getGenes(), oNetStart + oNetLength));
+		myPrevCommitment = 0.0;
+		opponentPrevCommitment = 0.0;
 	}
 
 	@Override
 	public GenomeBase getGenome() {
-		int cellGenomeLength = (inputSize + 3) * 4 + 1;
-		double[] genome = new double[cellCnt * cellGenomeLength];
-		for (int i = 0; i < cellCnt; i++) {
-			double[] cellGenome = lstms[i].getGenome();
-			for (int j = 0; j < cellGenomeLength; j++) {
-				genome[j + i * cellGenomeLength] = cellGenome[j];
+		int inputCellGenomeLength = (gameNodeInputSize + 3) * 4 + 1;
+		double[] inputLayerGenome = new double[inputCellCnt * inputCellGenomeLength];
+		for (int i = 0; i < inputCellCnt; i++) {
+			double[] cellGenome = inputCells[i].getGenome();
+			for (int j = 0; j < inputCellGenomeLength; j++) {
+				inputLayerGenome[j + i * inputCellGenomeLength] = cellGenome[j];
 			}
 		}
+		int hiddenCellGenomeLength = (hiddenInputSize + 3) * 4 + 1;
+		double[] hiddenLayerGenome = new double[hiddenCellCnt * hiddenCellGenomeLength];
+		for (int i = 0; i < hiddenCellCnt; i++) {
+			double[] cellGenome = hiddenCells[i].getGenome();
+			for (int j = 0; j < hiddenCellGenomeLength; j++) {
+				hiddenLayerGenome[j + i * hiddenCellGenomeLength] = cellGenome[j];
+			}
+		}
+		double[] genome = Misc.concat(inputLayerGenome, hiddenLayerGenome);
+		genome = Misc.concat(genome, oNet.getGenome());
+		genome = Misc.concat(genome, iNet.getGenome());
 		return new LSTMNoLimitTesterGenome(genome);
+	}
+	
+	public void matchStart() {
+		reset();
+	}
+	
+	public void reset() {
+		for (int i = 0; i < inputCells.length; i++)
+			inputCells[i].reset();
+		for (int i = 0; i < hiddenCells.length; i++)
+			hiddenCells[i].reset();
 	}
 
 	@Override
 	public ActionBase getAction(TableInfo info) throws IOException, Exception {
-		double[] input = new double[inputSize];
+		double[] input = new double[gameNodeInputSize];
 		double myBet = 0, myStack = 0;
 		double opponentBet = 0, opponentStack = 0;
 		if (info.playerInfos.size() != 2)
@@ -67,12 +114,13 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 		}
 		double previousBet = info.potSize - opponentBet - myBet;
 		double myTotal = previousBet / 2.0 + myBet + myStack;
-		input[0] = 2 * myBet / myTotal - 1.0;
 		double opponentTotal = previousBet / 2.0 + opponentBet + opponentStack;
-		input[1] = 2 * opponentBet / opponentTotal - 1.0;
-		input[2] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
-		input[3] = 4 * (getPotOdds(info) - 0.25);
-		double opportunity = lstms[0].activate(input);
+		input[0] = getStage(info.board.length());
+		input[1] = 2 * (myBet + previousBet / 2.0) / myTotal - 1.0;
+		input[2] = 2 * (opponentBet + previousBet / 2.0) / opponentTotal - 1.0;
+		input[3] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
+		input[4] = 4 * (getPotOdds(info) - 0.25);
+		double opportunity = estimateOpportunity(input);
 		if (opportunity < 0)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
 		int targetBet = (int) Math.round((getMyBet() + getMyStack()) * opportunity);
@@ -100,17 +148,51 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	@Override
 	public void observe(Result resultInfo) {
-		for (int i = 0; i < cellCnt; i++)
-			lstms[i].reset();
+		for (int i = 0; i < gameNodeCnt; i++)
+			inputCells[i].reset();
+		myPrevCommitment = 0.0;
+		opponentPrevCommitment = 0.0;
 	}
 
 	@Override
 	public String getName() {
-		return "LSTM Challenger (ID = " + id + ")";
+		return "LSTM Tester (ID = " + id + ")";
 	}
 
-	Cell[] lstms;
+	private double getStage(int boardLength) {
+		return 2 * (boardLength / 10.0) - 1.0;
+	}
 
-	public static final int inputSize = 4;
-	public static final int cellCnt = 1;
+	private double estimateOpportunity(double[] input) throws Exception {
+		double[] inputCellOutputs = new double[inputCellCnt];
+		for (int i = 0; i < inputCellCnt; i++) {
+			double[] X = iNet.activate(input);
+			inputCellOutputs[i] = inputCells[i].activate(X);
+		}
+		double[] hiddenCellOutputs = new double[hiddenCellCnt];
+		for (int i = 0; i < hiddenCellCnt; i++) {
+			double[] X = Misc.tail(inputCellOutputs, gameNodeCnt);
+			hiddenCellOutputs[i] = hiddenCells[i].activate(X);
+		}
+		for (int i = 0; i < hiddenCellCnt; i++)
+			inputCellOutputs[i + gameNodeCnt] = hiddenCellOutputs[i];
+		return oNet.activate(inputCellOutputs)[0];
+	}
+
+	Cell[] inputCells;
+	Cell[] hiddenCells;
+	StdNetwork oNet;
+	StdNetwork iNet;
+	double myPrevCommitment;
+	double opponentPrevCommitment;
+
+	public static final int gameNodeCnt = 75;
+	public static final int gameNodeInputSize = 5;
+	public static final int hiddenInputSize = 25;
+	public static final int inputCellCnt = 100;
+	public static final int hiddenCellCnt = 25;
+	public static final int oNetHiddenCnt = 150;
+	public static final int oNetOutputCnt = 1;
+	public static final int iNetHiddenCnt = 15;
+	public static final int iNetOutputCnt = 5;
 }

@@ -12,18 +12,19 @@ public class Cell {
 		outputGateWeights = new double[inputSize + 3];
 		Random rand = new Random();
 		for (int i = 0; i < inputSize + 3; i++) {
-			inputWeights[i] = (rand.nextGaussian());
-			inputGateWeights[i] = (rand.nextGaussian());
-			forgetGateWeights[i] = (rand.nextGaussian());
-			outputGateWeights[i] = (rand.nextGaussian());
+			inputWeights[i] = rand.nextGaussian();
+			inputGateWeights[i] = rand.nextGaussian();
+			forgetGateWeights[i] = rand.nextGaussian();
+			outputGateWeights[i] = rand.nextGaussian();
 		}
+		inputWeights[inputSize + 2] = 0.0;
 		cellState = 0;
 		output = 0;
 	}
 
 	public Cell(double[] gene) throws Exception {
 		inputSize = (int) gene[0];
-		if (gene.length != (inputSize + 3) * 4 + 1) 
+		if (gene.length != (inputSize + 3) * 4 + 1)
 			throw new Exception("LSTM.CELL.CELL(double[]): INVALID GENE LENGTH");
 		inputWeights = new double[inputSize + 3];
 		inputGateWeights = new double[inputSize + 3];
@@ -37,8 +38,11 @@ public class Cell {
 			outputGateWeights[i] = gene[p + 3 * inputSize + 9];
 			p++;
 		}
+		inputWeights[inputSize + 2] = 0.0;
+		cellState = 0;
+		output = 0;
 	}
-	
+
 	public double[] getGenome() {
 		double[] gene = new double[1 + (inputSize + 3) * 4];
 		gene[0] = inputSize;
@@ -52,7 +56,7 @@ public class Cell {
 		}
 		return gene;
 	}
-	
+
 	public void reset() {
 		cellState = 0;
 		output = 0;
@@ -69,11 +73,11 @@ public class Cell {
 		input[x.length + 2] = cellState;
 		double forgetGateOutput = Misc.sigmoid(Misc.dotProduct(input, forgetGateWeights));
 		double inputGateOutput = Misc.sigmoid(Misc.dotProduct(input, inputGateWeights));
-		double cellStateUpdate = Misc.tanh(Misc.dotProduct(input, inputWeights));
+		double cellStateUpdate = Math.tanh(Misc.dotProduct(input, inputWeights));
 		cellState = forgetGateOutput * cellState + inputGateOutput * cellStateUpdate;
 		input[x.length + 2] = cellState;
 		double outputGateOutput = Misc.sigmoid(Misc.dotProduct(input, outputGateWeights));
-		output = outputGateOutput * Misc.tanh(cellState);
+		output = outputGateOutput * Math.tanh(cellState);
 		return output;
 	}
 

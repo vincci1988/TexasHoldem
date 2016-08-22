@@ -6,6 +6,9 @@ public class Agent implements Comparable<Agent> {
 
 	public Agent(PlayerBase player) {
 		fitness = 0;
+		stats = new double[opponentCnt];
+		for (int i = 0; i < stats.length; i++)
+			stats[i] = 0;
 		this.player = player;
 	}
 
@@ -22,5 +25,8 @@ public class Agent implements Comparable<Agent> {
 	}
 
 	public double fitness;
+	public double[] stats;
 	public PlayerBase player;
+	
+	public static final int opponentCnt = 4;
 }

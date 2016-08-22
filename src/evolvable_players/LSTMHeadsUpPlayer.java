@@ -32,6 +32,14 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 	public GenomeBase getGenome() {
 		return new LSTMHeadsUpPlayerGenome(lstm.getGenome());
 	}
+	
+	public void matchStart() {
+		reset();
+	}
+	
+	public void reset() {
+		lstm.reset();
+	}
 
 	@Override
 	public ActionBase getAction(TableInfo info) throws IOException, Exception {
@@ -51,11 +59,12 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 		}
 		double previousBet = info.potSize - opponentBet - myBet;
 		double myTotal = previousBet / 2.0 + myBet + myStack;
-		input[0] = 2 * myBet / myTotal - 1.0;
 		double opponentTotal = previousBet / 2.0 + opponentBet + opponentStack;
-		input[1] = 2 * opponentBet / opponentTotal - 1.0;
-		input[2] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
-		input[3] = 4 * (getPotOdds(info) - 0.25);
+		input[0] = getStage(info.board.length());
+		input[1] = 2 * myBet / myTotal - 1.0;
+		input[2] = 2 * opponentBet / opponentTotal - 1.0;
+		input[3] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
+		input[4] = 4 * (getPotOdds(info) - 0.25);
 		double opportunity = lstm.activate(input);
 		if (opportunity < 0)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
@@ -91,8 +100,12 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 	public String getName() {
 		return "LSTM Heads-up Player (ID = " + id + ")";
 	}
+	
+	private double getStage(int boardLength) {
+		return 2 * (boardLength / 10.0) - 1.0;
+	}
 
 	private Cell lstm;
 
-	static public final int inputSize = 4;
+	public static final int inputSize = 5;
 }
