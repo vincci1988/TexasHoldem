@@ -1,5 +1,8 @@
 package LSTM;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 public class StdNetwork {
 
 	public StdNetwork(int inputCnt, int hiddenCnt, int outputCnt) {
@@ -15,6 +18,23 @@ public class StdNetwork {
 		Misc.gaussianInit(inputWeights);
 		Misc.gaussianInit(hiddenLayerWeights);
 		Misc.gaussianInit(outputLayerWeights);
+	}
+	
+	public StdNetwork(int inputCnt, int hiddenCnt, int outputCnt, String genomeFile) throws Exception {
+		int genomeLength = inputCnt * 2 + (inputCnt + 1) * hiddenCnt + (hiddenCnt + 1) * outputCnt;
+		double[] genome = new double[genomeLength];
+		FileReader freader = new FileReader(genomeFile);
+		BufferedReader reader = new BufferedReader(freader); 
+		for (int i = 0; i < genome.length; i++)
+			genome[i] = Double.parseDouble(reader.readLine());
+		reader.close();
+		this.inputCnt = inputCnt;
+		this.hiddenCnt = hiddenCnt;
+		this.outputCnt = outputCnt;
+		inputWeights = Misc.head(genome, inputCnt * 2);
+		hiddenLayerWeights = Misc.subArray(genome, inputWeights.length, (inputCnt + 1) * hiddenCnt);
+		outputLayerWeights = Misc.tail(genome, inputWeights.length + hiddenLayerWeights.length);
+		outputs = new double[outputCnt];
 	}
 
 	public StdNetwork(int inputCnt, int hiddenCnt, int outputCnt, double[] genome) throws Exception {

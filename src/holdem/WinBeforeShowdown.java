@@ -18,9 +18,9 @@ public class WinBeforeShowdown extends Result {
 		return report;
 	}
 	
-	String boardForDisplay;
-	String board;
-	String winnerName;
-	int winnerID;
-	int potSize;
+	public String boardForDisplay;
+	public String board;
+	public String winnerName;
+	public int winnerID;
+	public int potSize;
 }

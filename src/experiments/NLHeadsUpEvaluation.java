@@ -46,7 +46,7 @@ public class NLHeadsUpEvaluation implements Exp {
 			System.out.println("SB amount: " + SBAmt);
 			System.out.println("Buy-in amount: " + buyInAmt);
 			NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponents[i], SBAmt, buyInAmt, maxDeckCnt);
-			System.out.println("Agent Perforance: " + headsUpTable.start(i + "_" + performanceLog, i + "_" + gameLog) + " mBB/hand\n");
+			System.out.println("Agent Perforance: " + headsUpTable.start(i + "_" + performanceLog, i + "_" + gameLog)[0] + " mBB/hand\n");
 		}
 	}
 

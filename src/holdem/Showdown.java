@@ -21,7 +21,7 @@ public class Showdown extends Result {
 		return report;
 	}
 	
-	String boardForDisplay;
-	String board;
-	ArrayList<PotResultInfo> potResults;
+	public String boardForDisplay;
+	public String board;
+	public ArrayList<PotResultInfo> potResults;
 }

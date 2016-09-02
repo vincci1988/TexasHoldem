@@ -14,7 +14,7 @@ import simple_players.*;
 @SuppressWarnings("unused")
 public class LSTMPlayerEvolution extends EvolutionBase {
 
-	public LSTMPlayerEvolution() throws IOException {
+	public LSTMPlayerEvolution() throws Exception {
 		super();
 		opponents = new PlayerBase[4];
 		opponents[0] = new CandidStatistician(-1);
@@ -26,11 +26,12 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new LSTMNoLimitTester(id++)));
+			population.add(new Agent(new LSTMNoLimitTester(id++, "LSTMNoLimitTesterGenome.txt")));
 	}
 
 	@Override
 	public void run() throws Exception {
+
 		PrintWriter log = new PrintWriter(logPath);
 		for (int i = 0; i < maxGenCnt; i++) {
 			System.out.println("<BEGIN GENERATION " + (i + 1) + ">");
@@ -46,7 +47,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 		log.close();
 		System.out.println();
 		System.out.println("<BEGIN: CHAMPION EVALUATION>");
-		LSTMNoLimitTester champion = (LSTMNoLimitTester) population.get(0).player;
+		LSTMNoLimitTester champion = (LSTMNoLimitTester) population.get(population.size() - 1).player;
 		((LSTMNoLimitTesterGenome) champion.getGenome()).writeToFile("LSTMNoLimitTesterGenome.txt");
 		NLHeadsUpEvaluation eval = new NLHeadsUpEvaluation(champion, "NLHeadsUpPerformance.txt",
 				"NLHeadsUpGameLog.txt");
@@ -62,10 +63,10 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			LSTMNoLimitTester player = (LSTMNoLimitTester) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
-			res += "CS = " + population.get(i).stats[0] + ", ";
-			res += "SL = " + population.get(i).stats[1] + ", ";
-			res += "HM = " + population.get(i).stats[2] + ", ";
-			res += "CM = " + population.get(i).stats[3] + " }\n";
+			res += "CS = " + population.get(i).stats[0] + " }\n";//, ";
+			//res += "SL = " + population.get(i).stats[1] + ", ";
+			//res += "HM = " + population.get(i).stats[2] + ", ";
+			//res += "CM = " + population.get(i).stats[3] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 			player.reset();
@@ -79,14 +80,16 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	@Override
 	void select() throws Exception {
 		for (int i = 0; i < populationSize; i++) {
-			for (int j = 0; j < opponents.length; j++) {
+			for (int j = 0; j < 1; j++ ) {//opponents.length; j++) {
 				NLHeadsUpTable headsUpTable = new NLHeadsUpTable(population.get(i).player, opponents[j], SBAmt,
 						buyInAmt, maxDeckCnt);
-				population.get(i).stats[j] = headsUpTable.start();
+				double[] performances = headsUpTable.start();
+				population.get(i).stats[j] = performances[0];
 			}
-			population.get(i).fitness = population.get(i).stats[0] / 10000.0 + population.get(i).stats[1] / 1000
-					+ population.get(i).stats[2] / 30000 + population.get(i).stats[0] / 40000;
-			population.get(i).fitness /= opponents.length;
+			population.get(i).fitness = population.get(i).stats[0]; /// 10000.0 + population.get(i).stats[1] / 1000
+					//+ population.get(i).stats[2] / 30000 + population.get(i).stats[3] / 40000;
+			//population.get(i).fitness /= 4;
+			System.out.println(population.get(i).player.getName() + ": " + population.get(i).fitness);
 		}
 		Collections.sort(population);
 		int survivorCnt = ((int) (populationSize * survivalRate));
@@ -120,6 +123,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			LSTMNoLimitTester child = new LSTMNoLimitTester(id++, childGenome);
 			population.add(new Agent(child));
 		}
+		Collections.reverse(population);
 	}
 
 	PlayerBase[] opponents;
@@ -129,14 +133,14 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	double mutationStrength;
 
 	static final int populationSize = 20;
-	static final int maxGenCnt = 50;
-	static final int maxDeckCnt = 500;
+	static final int maxGenCnt = 1;
+	static final int maxDeckCnt = 3000;
 	static final int champDeckCnt = 1500;
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
 	static final double initialMutationRate = 0.05;
-	static final double initialMutationStrength = 0.5;
+	static final double initialMutationStrength = 0.1;
 	static final String logPath = "LSTMNoLimitTesterEvolutionLog.txt";
 	static int id = 0;
 }

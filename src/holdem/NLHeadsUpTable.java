@@ -20,7 +20,7 @@ public class NLHeadsUpTable extends TableBase {
 		}
 		deck = null;
 		gameCnt = 0;
-		agentPerformance = 0;
+		agentPerformance = new double[2];
 		gameLogWriter = null;
 		log = false;
 		agent.dec(agent.getBalance());
@@ -28,8 +28,8 @@ public class NLHeadsUpTable extends TableBase {
 		opponent.dec(opponent.getBalance());
 		opponent.deposit(buyInAmt * maxGameCnt * 2);
 	}
-	
-	public double start() throws Exception {
+
+	public double[] start() throws Exception {
 		agent.matchStart();
 		opponent.matchStart();
 		log = false;
@@ -43,7 +43,8 @@ public class NLHeadsUpTable extends TableBase {
 		opponent.matchStart();
 		if (maxDeckCnt % 2 == 0) {
 			Button = (Button + 1) % headsUpPlayerCnt;
-			BBIndex = (Button + 1) % headsUpPlayerCnt;;
+			BBIndex = (Button + 1) % headsUpPlayerCnt;
+			;
 		}
 		for (int i = 0; i < maxDeckCnt; i++) {
 			deck = decks[i];
@@ -54,7 +55,7 @@ public class NLHeadsUpTable extends TableBase {
 		return agentPerformance;
 	}
 
-	public double start(String performanceLog, String gameLog) throws Exception {
+	public double[] start(String performanceLog, String gameLog) throws Exception {
 		log = true;
 		PrintWriter performanceLogWriter = new PrintWriter(performanceLog);
 		gameLogWriter = new PrintWriter(gameLog);
@@ -72,27 +73,28 @@ public class NLHeadsUpTable extends TableBase {
 		opponent.matchStart();
 		if (maxDeckCnt % 2 == 0) {
 			Button = (Button + 1) % headsUpPlayerCnt;
-			BBIndex = (Button + 1) % headsUpPlayerCnt;;
+			BBIndex = (Button + 1) % headsUpPlayerCnt;
+			;
 		}
 		for (int i = 0; i < maxDeckCnt; i++) {
 			gameLogWriter.println("<BEGIN: GAME " + (maxDeckCnt + i + 1) + ">");
 			deck = decks[i];
 			deck.reset();
 			game();
-			gameLogWriter.println("<END: GAME " +  (maxDeckCnt + i + 1) + ">\n");
+			gameLogWriter.println("<END: GAME " + (maxDeckCnt + i + 1) + ">\n");
 			performanceLogWriter.println(getReport() + "\n");
 		}
 		performanceLogWriter.close();
 		gameLogWriter.close();
 		return agentPerformance;
 	}
-	
+
 	private String getReport() {
 		String report = "<BEGIN: PERFORMANCE REPORT>\n";
 		int agentNetWin = agent.getBalance() - 2 * maxDeckCnt * buyInAmt;
 		report += (agent.getName() + ": " + agentNetWin + "\n");
 		report += (opponent.getName() + ": " + (opponent.getBalance() - 2 * maxDeckCnt * buyInAmt) + "\n");
-		agentPerformance = (((double) agentNetWin) * 1000 / BBAmt / gameCnt);
+		agentPerformance[0] = (((double) agentNetWin) * 1000 / BBAmt / gameCnt);
 		report += ("Agent Performance: " + agentPerformance + " mBB/hand (DECK[" + ((gameCnt + 1) / 2) + "], GAME["
 				+ gameCnt + "])\n");
 		report += "<END: PERFORMANCE REPORT>";
@@ -174,7 +176,8 @@ public class NLHeadsUpTable extends TableBase {
 		for (; balanced < seatCnt && activePlayerCnt > 1; next = (next + 1) % seatCnt) {
 			TableInfo tableInfo = new TableInfo(this);
 			ActionBase action = seats[next].playerMove(tableInfo);
-			if (log && action != null) gameLogWriter.println(getLogEntry(tableInfo, action));
+			if (log && action != null)
+				gameLogWriter.println(getLogEntry(tableInfo, action));
 			balanced = processAction(action) ? balanced + 1 : 1;
 			broadcast(action);
 		}
@@ -228,7 +231,8 @@ public class NLHeadsUpTable extends TableBase {
 	}
 
 	private void broadcast(Result resultInfo) throws Exception {
-		if (log) gameLogWriter.print(resultInfo);
+		if (log)
+			gameLogWriter.print(resultInfo);
 		for (int i = 0; i < seatCnt; i++)
 			seats[i].receive(resultInfo);
 	}
@@ -323,7 +327,7 @@ public class NLHeadsUpTable extends TableBase {
 	public static final int ante = 0;
 	public final int maxDeckCnt;
 
-	private double agentPerformance;
+	private double[] agentPerformance;
 	private PrintWriter gameLogWriter;
 	private boolean log;
 }
