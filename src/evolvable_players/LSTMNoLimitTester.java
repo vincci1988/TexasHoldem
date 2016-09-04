@@ -18,39 +18,44 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	public LSTMNoLimitTester(int id) throws Exception {
 		super(id);
-		lstm = new LSTMLayer(inputSize, cellCnt);
-		cNet = new FFNetwork(cellCnt, hiddenCnt, outputSize);
+		gameLayer = new LSTMLayer(inputSize, gameLayerCellCnt);
+		matchLayer = new LSTMLayer(inputSize, matchLayerCellCnt);
+		cNet = new FFNetwork(gameLayerCellCnt + matchLayerCellCnt, hiddenCnt, outputSize);
 	}
 
 	public LSTMNoLimitTester(int id, LSTMNoLimitTesterGenome genome) throws Exception {
 		super(id);
 		constructByGenome(genome);
 	}
-	
+
 	public LSTMNoLimitTester(int id, String genomeFile) throws Exception {
 		super(id);
 		LSTMNoLimitTesterGenome genome = new LSTMNoLimitTesterGenome(genomeFile);
 		constructByGenome(genome);
 	}
-	
+
 	private void constructByGenome(LSTMNoLimitTesterGenome genome) throws Exception {
 		if (genome.getGenes().length != getGenomeLength())
 			throw new Exception(
 					"LSTMNoLimitTester.LSTMNoLimitTester(int,LSTMNoLimitTesterGenome): Invalid genome length.");
-		lstm = new LSTMLayer(inputSize, cellCnt,
-				Util.head(genome.getGenes(), LSTMLayer.getGenomeLength(inputSize, cellCnt)));
-		cNet = new FFNetwork(cellCnt, hiddenCnt, outputSize,
-				Util.tail(genome.getGenes(), FFNetwork.getGenomeLength(cellCnt, hiddenCnt, outputSize)));
+		int gameLayerGenomeLength = LSTMLayer.getGenomeLength(inputSize, gameLayerCellCnt);
+		gameLayer = new LSTMLayer(inputSize, gameLayerCellCnt, Util.head(genome.getGenes(), gameLayerGenomeLength));
+		matchLayer = new LSTMLayer(inputSize, matchLayerCellCnt, Util.subArray(genome.getGenes(), gameLayerGenomeLength,
+				LSTMLayer.getGenomeLength(inputSize, matchLayerCellCnt)));
+		cNet = new FFNetwork(gameLayerCellCnt + matchLayerCellCnt, hiddenCnt, outputSize, Util.tail(genome.getGenes(),
+				FFNetwork.getGenomeLength(gameLayerCellCnt + matchLayerCellCnt, hiddenCnt, outputSize)));
 	}
 
 	@Override
 	public GenomeBase getGenome() {
-		return new LSTMNoLimitTesterGenome(Util.concat(lstm.getGenome(), cNet.getGenome()));
+		return new LSTMNoLimitTesterGenome(
+				Util.concat(Util.concat(gameLayer.getGenome(), matchLayer.getGenome()), cNet.getGenome()));
 	}
 
 	public static int getGenomeLength() {
-		return LSTMLayer.getGenomeLength(inputSize, cellCnt)
-				+ FFNetwork.getGenomeLength(cellCnt, hiddenCnt, outputSize);
+		return LSTMLayer.getGenomeLength(inputSize, gameLayerCellCnt)
+				+ LSTMLayer.getGenomeLength(inputSize, matchLayerCellCnt)
+				+ FFNetwork.getGenomeLength(gameLayerCellCnt + matchLayerCellCnt, hiddenCnt, outputSize);
 	}
 
 	public void matchStart() {
@@ -58,7 +63,8 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 	}
 
 	public void reset() {
-		lstm.reset();
+		gameLayer.reset();
+		matchLayer.reset();
 	}
 
 	@Override
@@ -86,7 +92,7 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 		input[2] = 2 * (opponentBet + previousBet / 2) / opponentTotal - 1.0;
 		input[3] = 2 * evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1) - 1.0;
 		input[4] = 4 * (getPotOdds(info) - 0.25);
-		double opportunity = cNet.activate(lstm.activate(input))[0];
+		double opportunity = cNet.activate(Util.concat(gameLayer.activate(input), matchLayer.activate(input)))[0];
 
 		if (opportunity < 0)
 			return info.currentBet == getMyBet() ? new Check(this) : new Fold(this);
@@ -116,7 +122,7 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	@Override
 	public void observe(Result resultInfo) {
-		lstm.reset();
+		gameLayer.reset();
 	}
 
 	@Override
@@ -128,11 +134,13 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 		return 2 * (boardLength / 10.0) - 1.0;
 	}
 
-	public LSTMLayer lstm;
+	public LSTMLayer gameLayer;
+	public LSTMLayer matchLayer;
 	public FFNetwork cNet;
 
 	public static final int inputSize = 5;
-	public static final int cellCnt = 50;
+	public static final int gameLayerCellCnt = 50;
+	public static final int matchLayerCellCnt = 10;
 	public static final int hiddenCnt = 7;
 	public static final int outputSize = 1;
 }

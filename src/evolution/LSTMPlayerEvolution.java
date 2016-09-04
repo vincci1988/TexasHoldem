@@ -63,10 +63,10 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			LSTMNoLimitTester player = (LSTMNoLimitTester) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
-			res += "CS = " + population.get(i).stats[0] + " }\n";//, ";
-			//res += "SL = " + population.get(i).stats[1] + ", ";
-			//res += "HM = " + population.get(i).stats[2] + ", ";
-			//res += "CM = " + population.get(i).stats[3] + " }\n";
+			res += "CS = " + population.get(i).stats[0] + ", ";
+			res += "SL = " + population.get(i).stats[1] + ", ";
+			res += "HM = " + population.get(i).stats[2] + ", ";
+			res += "CM = " + population.get(i).stats[3] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 			player.reset();
@@ -80,15 +80,15 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	@Override
 	void select() throws Exception {
 		for (int i = 0; i < populationSize; i++) {
-			for (int j = 0; j < 1; j++ ) {//opponents.length; j++) {
+			for (int j = 0; j < opponents.length; j++) {
 				NLHeadsUpTable headsUpTable = new NLHeadsUpTable(population.get(i).player, opponents[j], SBAmt,
 						buyInAmt, maxDeckCnt);
 				double[] performances = headsUpTable.start();
 				population.get(i).stats[j] = performances[0];
 			}
-			population.get(i).fitness = population.get(i).stats[0]; /// 10000.0 + population.get(i).stats[1] / 1000
-					//+ population.get(i).stats[2] / 30000 + population.get(i).stats[3] / 40000;
-			//population.get(i).fitness /= 4;
+			population.get(i).fitness = population.get(i).stats[0] / 10000.0 + population.get(i).stats[1] / 1000
+					+ population.get(i).stats[2] / 30000 + population.get(i).stats[3] / 40000;
+			population.get(i).fitness /= 4;
 			System.out.println(population.get(i).player.getName() + ": " + population.get(i).fitness);
 		}
 		Collections.sort(population);
@@ -133,9 +133,9 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	double mutationStrength;
 
 	static final int populationSize = 20;
-	static final int maxGenCnt = 1;
-	static final int maxDeckCnt = 3000;
-	static final int champDeckCnt = 1500;
+	static final int maxGenCnt = 50;
+	static final int maxDeckCnt = 500;
+	static final int champDeckCnt = 3000;
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;

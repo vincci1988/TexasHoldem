@@ -95,7 +95,7 @@ public class NLHeadsUpTable extends TableBase {
 		report += (agent.getName() + ": " + agentNetWin + "\n");
 		report += (opponent.getName() + ": " + (opponent.getBalance() - 2 * maxDeckCnt * buyInAmt) + "\n");
 		agentPerformance[0] = (((double) agentNetWin) * 1000 / BBAmt / gameCnt);
-		report += ("Agent Performance: " + agentPerformance + " mBB/hand (DECK[" + ((gameCnt + 1) / 2) + "], GAME["
+		report += ("Agent Performance: " + agentPerformance[0] + " mBB/hand (DECK[" + ((gameCnt + 1) / 2) + "], GAME["
 				+ gameCnt + "])\n");
 		report += "<END: PERFORMANCE REPORT>";
 		return report;
