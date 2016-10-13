@@ -25,6 +25,7 @@ public class Agent implements Comparable<Agent> {
 	}
 
 	public double fitness;
+	public double rawFitness;
 	public double[] stats;
 	public PlayerBase player;
 	

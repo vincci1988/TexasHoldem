@@ -31,9 +31,11 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 
 	@Override
 	public void run() throws Exception {
-
 		PrintWriter log = new PrintWriter(logPath);
 		for (int i = 0; i < maxGenCnt; i++) {
+			mutationRate = initialMutationRate + (finalMutationRate - initialMutationRate) * i / maxGenCnt;
+			mutationStrength = initialMutationStrength
+					+ (finalMutationStrength - initialMutationStrength) * i / maxGenCnt;
 			System.out.println("<BEGIN GENERATION " + (i + 1) + ">");
 			log.println("<BEGIN GENERATION " + (i + 1) + ">");
 			select();
@@ -63,13 +65,12 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			LSTMNoLimitTester player = (LSTMNoLimitTester) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
-			res += "CS = " + population.get(i).stats[0] + ", ";
-			res += "SL = " + population.get(i).stats[1] + ", ";
-			res += "HM = " + population.get(i).stats[2] + ", ";
-			res += "CM = " + population.get(i).stats[3] + " }\n";
+			res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] +", ";
+			res += "SL = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
+			res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
+			res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
-			player.reset();
 		}
 		avgSurvivorFitness /= population.size();
 		std = Math.sqrt(std / population.size() - Math.pow(avgSurvivorFitness, 2));
@@ -85,10 +86,14 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 						buyInAmt, maxDeckCnt);
 				double[] performances = headsUpTable.start();
 				population.get(i).stats[j] = performances[0];
+				if (population.get(i).stats[j] > maxStats[j])
+					maxStats[j] = population.get(i).stats[j];
 			}
-			population.get(i).fitness = population.get(i).stats[0] / 10000.0 + population.get(i).stats[1] / 1000
-					+ population.get(i).stats[2] / 30000 + population.get(i).stats[3] / 40000;
-			population.get(i).fitness /= 4;
+			population.get(i).fitness = 0;
+			
+			for (int j = 0; j < opponents.length; j++)
+				population.get(i).fitness += population.get(i).stats[j] / maxStats[j];
+			population.get(i).fitness /= opponents.length;
 			System.out.println(population.get(i).player.getName() + ": " + population.get(i).fitness);
 		}
 		Collections.sort(population);
@@ -131,16 +136,19 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
+	double[] maxStats = { 11000, 1000, 30000, 40000 };
 
 	static final int populationSize = 20;
-	static final int maxGenCnt = 50;
+	static final int maxGenCnt = 20;
 	static final int maxDeckCnt = 500;
-	static final int champDeckCnt = 3000;
+	static final int champDeckCnt = 30000;
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
 	static final double initialMutationRate = 0.05;
+	static final double finalMutationRate = 0.05;
 	static final double initialMutationStrength = 0.1;
+	static final double finalMutationStrength = 0.1;
 	static final String logPath = "LSTMNoLimitTesterEvolutionLog.txt";
 	static int id = 0;
 }

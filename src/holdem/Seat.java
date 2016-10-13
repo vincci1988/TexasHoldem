@@ -35,13 +35,24 @@ public class Seat implements Comparable<Seat> {
 	}
 
 	String getHoleCards() {
-		return holeCards == null ? null : holeCards.toString();
+		return holeCards == null ? "UNKNOWN" : holeCards.toString();
 	}
 
 	void deal(Deck deck) throws Exception {
 		if (!isEmpty()) {
 			holeCards = new HoleCards(deck.draw(), deck.draw());
 			holeCards.seat = this;
+			active = true;
+		}
+	}
+	
+	void deal(String cards) throws Exception {
+		if (!isEmpty()) {
+			if(cards.length() == 4) {
+				holeCards = new HoleCards(new Card(cards.substring(0,2)), new Card(cards.substring(2,4)));
+				holeCards.seat = this;
+			}
+			else holeCards = null;
 			active = true;
 		}
 	}

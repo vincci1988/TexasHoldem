@@ -9,12 +9,11 @@ public class Executable {
 		 * 2. CALL "RUN"
 		 */
 		try {
-			NLHeadsUpEvaluation test = new NLHeadsUpEvaluation("NLHeadsUpPerformance.txt", "NLHeadsUpGameLog.txt");
-			// HumanTableManualTest test = new HumanTableManualTest();
-			// TournamentChampionMatch test = new TournamentChampionMatch();
+			HeadsUpQueryEvaluation test = new HeadsUpQueryEvaluation("NLHeadsUpPerformance.txt", "NLHeadsUpGameLog.txt");
 			test.run();
 		} catch (Exception exception) {
 			System.out.println(exception);
+			exception.printStackTrace();
 		}
 
 	}

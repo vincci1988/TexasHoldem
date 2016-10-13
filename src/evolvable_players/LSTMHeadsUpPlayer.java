@@ -53,6 +53,7 @@ public class LSTMHeadsUpPlayer extends PlayerBase implements Statistician, Evolv
 		return new LSTMHeadsUpPlayerGenome(cNet.getGenome());
 	}
 	*/
+	
 	public void matchStart() {
 		reset();
 	}
