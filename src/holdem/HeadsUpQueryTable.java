@@ -111,7 +111,7 @@ public class HeadsUpQueryTable extends TableBase {
 		int next = (Button + 1) % seatCnt;
 		for (int i = 0; i < seatCnt; i++) {
 			if (seats[next].player.getID() == agent.id) {
-				System.out.print("AGENT HOLD CARDS: ");
+				System.out.print("AGENT HOLE CARDS: ");
 				seats[next].deal(keybrd.nextLine());
 			} else {
 				System.out.println("OPPONENT HOLE CARDS: UNKNOWN");

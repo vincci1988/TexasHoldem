@@ -26,7 +26,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new LSTMNoLimitTester(id++, "LSTMNoLimitTesterGenome.txt")));
+			population.add(new Agent(new LSTMNoLimitTester(id++)));//, "LSTMNoLimitTesterGenome.txt")));
 	}
 
 	@Override
@@ -139,15 +139,15 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	double[] maxStats = { 11000, 1000, 30000, 40000 };
 
 	static final int populationSize = 20;
-	static final int maxGenCnt = 20;
+	static final int maxGenCnt = 200;
 	static final int maxDeckCnt = 500;
 	static final int champDeckCnt = 30000;
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
-	static final double initialMutationRate = 0.05;
+	static final double initialMutationRate = 0.25;
 	static final double finalMutationRate = 0.05;
-	static final double initialMutationStrength = 0.1;
+	static final double initialMutationStrength = 0.30;
 	static final double finalMutationStrength = 0.1;
 	static final String logPath = "LSTMNoLimitTesterEvolutionLog.txt";
 	static int id = 0;

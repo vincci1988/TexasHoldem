@@ -152,9 +152,9 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 	public LSTMLayer matchLayer;
 	public FFNetwork cNet;
 
-	public static final int gameLayerCnt = 10;
+	public static final int gameLayerCnt = 50;
 	public static final int inputSize = 5;
-	public static final int gameLayerCellCnt = 5;
+	public static final int gameLayerCellCnt = 1;
 	public static final int matchLayerCellCnt = 10;
 	public static final int hiddenCnt = 7;
 	public static final int outputSize = 1;
