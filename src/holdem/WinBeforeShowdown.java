@@ -19,7 +19,6 @@ public class WinBeforeShowdown extends Result {
 	}
 	
 	public String boardForDisplay;
-	public String board;
 	public String winnerName;
 	public int winnerID;
 	public int potSize;

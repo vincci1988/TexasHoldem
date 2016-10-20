@@ -1,12 +1,13 @@
-import evolution.*;
+
+import stats.DominationData;
 
 public class App {
 
 	public static void main(String[] args) {
 		try {
-			EvolutionBase evo = new LSTMPlayerEvolution();
+			DominationData stats = new DominationData();
 			//EvolutionBase evo = new CandidStatisticianEvolution();
-			evo.run();
+			stats.compute("dominate.txt");
 		} catch (Exception exception) {
 			System.out.println(exception);
 			exception.printStackTrace();

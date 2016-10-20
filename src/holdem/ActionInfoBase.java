@@ -7,6 +7,7 @@ abstract public class ActionInfoBase {
 		this.playerName = action.player.getName();
 		this.playerID = action.player.id;
 		this.amt = action.player.seat.bet;
+		this.AIA = amt - action.bet;
 	}
 	
 	abstract public String toString();
@@ -19,9 +20,10 @@ abstract public class ActionInfoBase {
 		return null;
 	}
 	
-	String boardForDisplay;
-	String board;
+	public  String boardForDisplay;
+	public String board;
 	public String playerName;
 	public int playerID;
 	public int amt;
+	public int AIA; //Amount-In-Addition
 }

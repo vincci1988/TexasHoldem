@@ -18,7 +18,7 @@ public class CallingMachine extends PlayerBase {
 
 	@Override
 	public ActionBase getAction(TableInfo info) {
-		if (info.currentBet == 0) return new Check(this);
+		if (info.currentBet == getMyBet()) return new Check(this);
 		else if (info.currentBet < getMyBet() + getMyStack()) return new Call(this);
 		return new AllIn(this);
 	}

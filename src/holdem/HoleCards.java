@@ -27,6 +27,14 @@ public class HoleCards {
 		return first.equals(card) || second.equals(card);
 	}
 	
+	public boolean paired() {
+		return first.getRank() == second.getRank();
+	}
+	
+	public boolean suited() {
+		return first.getSuit() == second.getSuit();
+	}
+	
 	public String toString() {
 		return first.toString() + second.toString();
 	}

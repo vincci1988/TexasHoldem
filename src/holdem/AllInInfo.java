@@ -12,5 +12,4 @@ public class AllInInfo extends ActionInfoBase {
 				+ (boardForDisplay.length() == 0 ? ", " : ": " + boardForDisplay + ", ") + playerName + " ALL-IN ($"
 				+ amt + ") <END PLAYER ACTION>";
 	}
-
 }

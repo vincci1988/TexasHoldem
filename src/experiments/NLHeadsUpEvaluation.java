@@ -19,18 +19,20 @@ public class NLHeadsUpEvaluation implements Exp {
 		this.opponents[3] = new CallingMachine(-4);
 		this.performanceLog = performanceLog;
 		this.gameLog = gameLog;
+		this.deckNum = 1500;
 	}
 	
-	public NLHeadsUpEvaluation(PlayerBase agent, String performanceLog, String gameLog) throws IOException, Exception {
+	public NLHeadsUpEvaluation(PlayerBase agent, int deckNum, String performanceLog, String gameLog) throws IOException, Exception {
 		// Update to evaluate different agent / against different opponents
 		this.opponents = new PlayerBase[4];
 		this.agent = agent;
-		this.opponents[0] = new CandidStatistician(-1);
+		this.opponents[0] = new CarefulStatistician(-1);
 		this.opponents[1] = new HotheadManiac(-2);
 		this.opponents[2] = new ScaredLimper(-3);
 		this.opponents[3] = new CallingMachine(-4);
 		this.performanceLog = performanceLog;
 		this.gameLog = gameLog;
+		this.deckNum =  deckNum;
 	}
 
 	@Override
@@ -41,10 +43,9 @@ public class NLHeadsUpEvaluation implements Exp {
 			System.out.println("Opponent: " + opponents[i].getName());
 			int SBAmt = 50;
 			int buyInAmt = 20000;
-			int maxDeckCnt = 1500;
 			System.out.println("SB amount: " + SBAmt);
 			System.out.println("Buy-in amount: " + buyInAmt);
-			NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponents[i], SBAmt, buyInAmt, maxDeckCnt);
+			NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponents[i], SBAmt, buyInAmt, deckNum);
 			System.out.println("Agent Perforance: " + headsUpTable.start(i + "_" + performanceLog, i + "_" + gameLog)[0] + " mBB/hand\n");
 		}
 	}
@@ -53,4 +54,5 @@ public class NLHeadsUpEvaluation implements Exp {
 	PlayerBase[] opponents;
 	String performanceLog;
 	String gameLog;
+	int deckNum;
 }

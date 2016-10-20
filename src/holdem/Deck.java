@@ -36,6 +36,13 @@ public class Deck extends ArrayList<Card> {
 		Card toRemove = new Card(code);
 		remove(toRemove);
 	}
+	
+	public String toString() {
+		String result = new String();
+		for (int i = 0; i < this.size(); i++) 
+			result += (this.get(i) + " ");
+		return result;
+	}
 
 	private static final long serialVersionUID = 1L;
 	Iterator<Card> iterator;

@@ -136,7 +136,7 @@ public class Card implements Comparable<Card> {
 		return '2';
 	}
 
-	int getNumericRank() {
+	public int getNumericRank() {
 		return 13 - (code / 4);
 	}
 

@@ -78,7 +78,7 @@ public class HeadsUpQueryTable extends TableBase {
 		System.out.println("<BEGIN: GAME " + gameCnt + ">");
 		deal();
 		if (preflop() || flop() || turn() || river()) {
-			getOpponentCards();
+			//getOpponentCards();
 			winBeforeShowdown();
 		}			
 		else {

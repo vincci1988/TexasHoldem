@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import holdem.TableInfo;
+
 public class HandStrengthEvaluator extends HashMap<String, Float> {
 
 	public HandStrengthEvaluator(String HSDBPath) {
@@ -31,6 +33,17 @@ public class HandStrengthEvaluator extends HashMap<String, Float> {
 		if (opponentCnt == 0)
 			return 0;
 		return (riverHoleCardsCnt - get(holeCards)) / riverHoleCardsCnt;
+	}
+	
+	public float getAdjustedHandStrength(String holeCards, float cons, TableInfo info) throws Exception {
+		update(info.board);
+		
+		if (!this.containsKey(holeCards))
+			return -1;
+		if (info.playerInfos.size() - 1 == 0)
+			return 0;
+		
+		return 0;
 	}
 
 	private void update(String board) throws IOException {
