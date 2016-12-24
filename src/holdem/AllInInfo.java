@@ -2,8 +2,8 @@ package holdem;
 
 public class AllInInfo extends ActionInfoBase {
 
-	AllInInfo(ActionBase action, Board board) {
-		super(action, board);
+	AllInInfo(ActionBase action, TableInfo info) {
+		super(action, info);
 	}
 
 	@Override

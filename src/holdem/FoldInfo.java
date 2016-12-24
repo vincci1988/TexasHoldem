@@ -2,8 +2,8 @@ package holdem;
 
 public class FoldInfo extends ActionInfoBase {
 
-	FoldInfo(ActionBase action, Board board) {
-		super(action, board);
+	FoldInfo(ActionBase action, TableInfo info) {
+		super(action, info);
 	}
 
 	@Override

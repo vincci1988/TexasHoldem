@@ -179,7 +179,7 @@ public class NLHeadsUpTable extends TableBase {
 			if (log && action != null)
 				gameLogWriter.println(getLogEntry(tableInfo, action));
 			balanced = processAction(action) ? balanced + 1 : 1;
-			broadcast(action);
+			broadcast(action, tableInfo);
 		}
 		updatePots();
 	}
@@ -223,10 +223,10 @@ public class NLHeadsUpTable extends TableBase {
 		return false;
 	}
 
-	private void broadcast(ActionBase action) {
+	private void broadcast(ActionBase action, TableInfo info) {
 		if (action != null) {
 			for (int i = 0; i < seatCnt; i++)
-				seats[i].receive(action, board);
+				seats[i].receive(action, info);
 		}
 	}
 

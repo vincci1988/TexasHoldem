@@ -86,9 +86,10 @@ public class GameTable extends TableBase {
 	void bet(int next) throws Exception {
 		int balanced = 0;
 		for (; balanced < seatCnt && activePlayerCnt > 1; next = (next + 1) % seatCnt) {
-			ActionBase action = seats[next].playerMove(new TableInfo(this));
+			TableInfo info = new TableInfo(this);
+			ActionBase action = seats[next].playerMove(info);
 			balanced = processAction(action) ? balanced + 1 : 1;
-			broadcast(action);
+			broadcast(action, info);
 		}
 		updatePots();
 	}
@@ -125,10 +126,10 @@ public class GameTable extends TableBase {
 		return false;
 	}
 
-	void broadcast(ActionBase action) {
+	void broadcast(ActionBase action, TableInfo info) {
 		if (action != null) {
 			for (int i = 0; i < seatCnt; i++)
-				seats[i].receive(action, board);
+				seats[i].receive(action, info);
 		}
 	}
 

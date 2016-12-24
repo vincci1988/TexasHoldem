@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Collections;
 
 import LSTM.Cell;
+import advanced_players.Shaco;
 import evolvable_players.*;
 import experiments.NLHeadsUpEvaluation;
 import holdem.NLHeadsUpTable;
@@ -17,7 +18,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	public LSTMPlayerEvolution() throws Exception {
 		super();
 		opponents = new PlayerBase[4];
-		opponents[0] = new Villian(-1);
+		opponents[0] = new CandidStatistician(-1);
 		opponents[1] = new ScaredLimper(-2);
 		opponents[2] = new HotheadManiac(-3);
 		opponents[3] = new CallingMachine(-4);
@@ -26,7 +27,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new LSTMNoLimitTester(id++, "LSTMNoLimitTesterGenome.txt")));
+			population.add(new Agent(new LSTMNoLimitTester(id++)));//, "LSTMNoLimitTesterGenome.txt")));
 	}
 
 	@Override
@@ -51,8 +52,8 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 		System.out.println("<BEGIN: CHAMPION EVALUATION>");
 		LSTMNoLimitTester champion = (LSTMNoLimitTester) population.get(population.size() - 1).player;
 		((LSTMNoLimitTesterGenome) champion.getGenome()).writeToFile("LSTMNoLimitTesterGenome.txt");
-		NLHeadsUpEvaluation eval = new NLHeadsUpEvaluation(champion, champDeckCnt, "NLHeadsUpPerformance.txt",
-				"NLHeadsUpGameLog.txt");
+		NLHeadsUpEvaluation eval = new NLHeadsUpEvaluation(champion, opponents, champDeckCnt,
+				"NLHeadsUpPerformance.txt", "NLHeadsUpGameLog.txt");
 		eval.run();
 		System.out.println("<END: CHAMPION EVALUATION>");
 	}
@@ -65,10 +66,13 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			LSTMNoLimitTester player = (LSTMNoLimitTester) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
-			res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] +" }\n";
-			//res += "SL = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
-			//res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
-			//res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + " }\n";
+			res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] + ", ";
+			res += "SL = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
+			res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
+			res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
+			res += "VL = " + population.get(i).stats[4] + " / " + maxStats[4] + ", ";
+			res += "CF = " + population.get(i).stats[5] + " / " + maxStats[5] + ", ";
+			res += "SH = " + population.get(i).stats[6] + " / " + maxStats[6] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 		}
@@ -81,7 +85,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	@Override
 	void select() throws Exception {
 		for (int i = 0; i < populationSize; i++) {
-			for (int j = 0; j < 1; j++) {//opponents.length; j++) {
+			for (int j = 0; j < opponents.length; j++) {
 				NLHeadsUpTable headsUpTable = new NLHeadsUpTable(population.get(i).player, opponents[j], SBAmt,
 						buyInAmt, maxDeckCnt);
 				double[] performances = headsUpTable.start();
@@ -90,10 +94,10 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 					maxStats[j] = population.get(i).stats[j];
 			}
 			population.get(i).fitness = 0;
-			
-			for (int j = 0; j < 1; j++) //opponents.length; j++) 
-				population.get(i).fitness += population.get(i).stats[j];// / maxStats[j];
-			//population.get(i).fitness /= opponents.length;
+
+			for (int j = 0; j < opponents.length; j++)
+				population.get(i).fitness += population.get(i).stats[j] / maxStats[j];
+			population.get(i).fitness /= opponents.length;
 			System.out.println(population.get(i).player.getName() + ": " + population.get(i).fitness);
 		}
 		Collections.sort(population);
@@ -136,18 +140,18 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
-	double[] maxStats = { 1000, 1000, 30000, 40000 }; //11000
+	double[] maxStats = { 10000, 1000, 40000, 40000 };//, 20000, 10000, 10000 };
 
 	static final int populationSize = 20;
-	static final int maxGenCnt = 15;
+	static final int maxGenCnt = 200;
 	static final int maxDeckCnt = 500;
-	static final int champDeckCnt = 5000;
+	static final int champDeckCnt = 1500;
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
-	static final double initialMutationRate = 0.05;
+	static final double initialMutationRate = 0.1;
 	static final double finalMutationRate = 0.05;
-	static final double initialMutationStrength = 0.25;
+	static final double initialMutationStrength = 0.5;
 	static final double finalMutationStrength = 0.1;
 	static final String logPath = "LSTMNoLimitTesterEvolutionLog.txt";
 	static int id = 0;

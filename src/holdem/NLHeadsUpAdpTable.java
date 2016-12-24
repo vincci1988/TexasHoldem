@@ -1,108 +1,83 @@
 package holdem;
 
-import java.io.PrintWriter;
+//import java.text.DecimalFormat;
+//import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
 
-import simple_players.ExternalTester;
+import evolvable_players.LSTMNoLimitTester;
 
-public class HeadsUpQueryTable extends TableBase {
+public class NLHeadsUpAdpTable extends TableBase {
 
-	public HeadsUpQueryTable(PlayerBase agent, String opponentName, int SBAmt, int buyInAmt, int maxGameCnt)
-			throws Exception {
+	public NLHeadsUpAdpTable(PlayerBase agent, PlayerBase[] opponents, int SBAmt, int buyInAmt, int maxGameCnt,
+			int roundCnt) throws Exception {
 		super(SBAmt, ante, headsUpPlayerCnt);
 		this.agent = agent;
-		this.opponent = new ExternalTester(-1, opponentName);
+		this.opponents = opponents;
 		this.buyInAmt = buyInAmt;
 		this.maxDeckCnt = maxGameCnt;
+		this.roundCnt = roundCnt;
 		gameCnt = 0;
+		gameNetWins = new double[maxDeckCnt * opponents.length];
 		agentPerformance = new double[2];
-		gameLogWriter = null;
-		log = false;
-		keybrd = new Scanner(System.in);
-		agent.dec(agent.getBalance());
-		agent.deposit(buyInAmt * maxGameCnt * 2);
-		opponent.dec(opponent.getBalance());
-		opponent.deposit(buyInAmt * maxGameCnt * 2);
 	}
 
 	public double[] start() throws Exception {
-		agent.matchStart();
-		opponent.matchStart();
-		log = false;
-		for (int i = 0; i < maxDeckCnt; i++) {
-			game();
-			getReport();
+		for (int r = 0; r < roundCnt; r++) {
+			for (int o = 0; o < opponents.length; o++) {
+				agent.matchStart();
+				agent.dec(agent.getBalance());
+				agent.deposit(buyInAmt * maxDeckCnt);
+				opponents[o].matchStart();
+				opponents[o].dec(opponents[o].getBalance());
+				opponents[o].deposit(buyInAmt * maxDeckCnt);
+				decks = new Deck[maxDeckCnt];
+				for (int i = 0; i < maxDeckCnt; i++) {
+					decks[i] = new Deck();
+					decks[i].shuffle();
+				}
+				for (int i = 0; i < maxDeckCnt; i++) {
+					int previousBalance = agent.getBalance();
+					agent.buyIn(this, buyInAmt);
+					opponents[o].buyIn(this, buyInAmt);
+					agent.gameStart();
+					opponents[o].gameStart();
+					deck = decks[i];
+					deck.reset();
+					game();
+					gameNetWins[maxDeckCnt * o + i] += getGameNetWin(previousBalance);
+				}
+				System.out.println(((LSTMNoLimitTester)agent).astats);
+			}			
+			/*
+			System.out.print((r + 1) + ": ");
+			NumberFormat formatter = new DecimalFormat("#0.00"); 
+			for (int i = 0; i < gameNetWins.length; i++) {
+				if ((i) % maxDeckCnt == 0) System.out.print(opponents[i / maxDeckCnt].getName() + ": ");
+				System.out.print(formatter.format(gameNetWins[i] / (r + 1)) + " ");
+				if ((i + 1) % maxDeckCnt == 0) System.out.print("| ");
+			}
+			System.out.println();
+			*/
 		}
 		return agentPerformance;
 	}
 
-	public double[] start(String performanceLog, String gameLog) throws Exception {
-		log = true;
-		PrintWriter performanceLogWriter = new PrintWriter(performanceLog);
-		gameLogWriter = new PrintWriter(gameLog);
-		agent.matchStart();
-		opponent.matchStart();
-		for (int i = 0; i < maxDeckCnt; i++) {
-			gameLogWriter.println("<BEGIN: GAME " + (i + 1) + ">");
-			game();
-			gameLogWriter.println("<END: GAME " + (i + 1) + ">\n");
-			performanceLogWriter.println(getReport() + "\n");
-		}
-		performanceLogWriter.close();
-		gameLogWriter.close();
-		return agentPerformance;
-	}
-
-	private String getReport() {
-		String report = "<BEGIN: PERFORMANCE REPORT>\n";
-		int agentNetWin = agent.getBalance() - 2 * maxDeckCnt * buyInAmt;
-		report += (agent.getName() + ": " + agentNetWin + "\n");
-		report += (opponent.getName() + ": " + (opponent.getBalance() - 2 * maxDeckCnt * buyInAmt) + "\n");
-		agentPerformance[0] = (((double) agentNetWin) * 1000 / BBAmt / gameCnt);
-		report += ("Agent Performance: " + agentPerformance[0] + " mBB/hand (DECK[" + ((gameCnt + 1) / 2) + "], GAME["
-				+ gameCnt + "])\n");
-		report += "<END: PERFORMANCE REPORT>";
-		return report;
+	private double getGameNetWin(int previousBalance) {
+		return (((double) (agent.getBalance() - previousBalance)) * 1000 / BBAmt);
 	}
 
 	@Override
 	public boolean game() throws Exception {
 		gameCnt++;
-		opponent.buyIn(this, buyInAmt);
-		agent.buyIn(this, buyInAmt);
-		agent.gameStart();
-		opponent.gameStart();
 		playerCnt = 2;
-		System.out.println("<BEGIN: GAME " + gameCnt + ">");
 		deal();
-		if (preflop() || flop() || turn() || river()) {
-			//getOpponentCards();
+		if (preflop() || flop() || turn() || river())
 			winBeforeShowdown();
-		}			
-		else {
-			getOpponentCards();
+		else
 			showdown();
-		}
-			
 		cleanUp();
-		System.out.println("<END: GAME " + gameCnt + ">\n");
 		return true;
-	}
-	
-	private void getOpponentCards() throws Exception {
-		System.out.print("OPPONENT HOLE CARDS: ");
-		String opponentHoleCards = keybrd.nextLine();
-		opponent.seat.holeCards = new HoleCards(new Card(opponentHoleCards.substring(0, 2)),
-				new Card(opponentHoleCards.substring(2, 4)));
-		opponent.seat.holeCards.seat = opponent.seat;
-		if (log) {
-			gameLogWriter.println("<BEGIN: HOLE CARDS>");
-			gameLogWriter.println(seats[Button].player.getName() + " (B): " + seats[Button].getHoleCards());
-			gameLogWriter.println(seats[BBIndex].player.getName() + ": " + seats[BBIndex].getHoleCards());
-			gameLogWriter.println("<END: HOLE CARDS>");
-		}
 	}
 
 	private void deal() throws Exception {
@@ -110,13 +85,7 @@ public class HeadsUpQueryTable extends TableBase {
 		BBIndex = getNext(Button);
 		int next = (Button + 1) % seatCnt;
 		for (int i = 0; i < seatCnt; i++) {
-			if (seats[next].player.getID() == agent.id) {
-				System.out.print("AGENT HOLE CARDS: ");
-				seats[next].deal(keybrd.nextLine());
-			} else {
-				System.out.println("OPPONENT HOLE CARDS: UNKNOWN");
-				seats[next].deal("UNKNOWN");
-			}
+			seats[next].deal(deck);
 			next = (next + 1) % seatCnt;
 		}
 		activePlayerCnt = playerCnt;
@@ -136,10 +105,8 @@ public class HeadsUpQueryTable extends TableBase {
 	}
 
 	private boolean flop() throws Exception {
-		System.out.print("FLOP BOARD: ");
-		String flop = keybrd.nextLine();
 		for (int i = 0; i < 3; i++)
-			board.add(new Card(flop.substring(2 * i, 2 * i + 2)));
+			board.add(deck.draw());
 		currentBet = 0;
 		minRaise = BBAmt;
 		bet(getNext(Button));
@@ -147,9 +114,7 @@ public class HeadsUpQueryTable extends TableBase {
 	}
 
 	private boolean turn() throws Exception {
-		System.out.print("TURN CARD: ");
-		String turn = keybrd.nextLine();
-		board.add(new Card(turn));
+		board.add(deck.draw());
 		currentBet = 0;
 		minRaise = BBAmt;
 		bet(getNext(Button));
@@ -157,9 +122,7 @@ public class HeadsUpQueryTable extends TableBase {
 	}
 
 	private boolean river() throws Exception {
-		System.out.print("RIVER CARD: ");
-		String river = keybrd.nextLine();
-		board.add(new Card(river));
+		board.add(deck.draw());
 		currentBet = 0;
 		minRaise = BBAmt;
 		bet(getNext(Button));
@@ -171,19 +134,10 @@ public class HeadsUpQueryTable extends TableBase {
 		for (; balanced < seatCnt && activePlayerCnt > 1; next = (next + 1) % seatCnt) {
 			TableInfo tableInfo = new TableInfo(this);
 			ActionBase action = seats[next].playerMove(tableInfo);
-			if (log && action != null)
-				gameLogWriter.println(getLogEntry(tableInfo, action));
 			balanced = processAction(action) ? balanced + 1 : 1;
 			broadcast(action, tableInfo);
 		}
 		updatePots();
-	}
-
-	private String getLogEntry(TableInfo tableInfo, ActionBase action) {
-		if (action instanceof Raise)
-			return tableInfo.summarize() + action.player.getName() + ": " + action.getClass().getSimpleName() + " ($"
-					+ ((Raise) action).raiseToAmt + ")";
-		return tableInfo.summarize() + action.player.getName() + ": " + action.getClass().getSimpleName();
 	}
 
 	private boolean processAction(ActionBase action) {
@@ -226,8 +180,6 @@ public class HeadsUpQueryTable extends TableBase {
 	}
 
 	private void broadcast(Result resultInfo) throws Exception {
-		if (log)
-			gameLogWriter.print(resultInfo);
 		for (int i = 0; i < seatCnt; i++)
 			seats[i].receive(resultInfo);
 	}
@@ -312,17 +264,17 @@ public class HeadsUpQueryTable extends TableBase {
 	}
 
 	PlayerBase agent;
-	PlayerBase opponent;
+	PlayerBase[] opponents;
 	int buyInAmt;
 	int gameCnt;
+	int roundCnt;
+	Deck[] decks;
+	Deck deck;
 
 	public static final int headsUpPlayerCnt = 2;
 	public static final int ante = 0;
 	public final int maxDeckCnt;
 
 	private double[] agentPerformance;
-	private PrintWriter gameLogWriter;
-	private boolean log;
-	Scanner keybrd;
-
+	private double[] gameNetWins;
 }

@@ -7,5 +7,9 @@ public class Raise extends ActionBase {
 		raiseToAmt = amt;
 	}
 	
+	public int getAmt() {
+		return raiseToAmt;
+	}
+	
 	int raiseToAmt;
 }

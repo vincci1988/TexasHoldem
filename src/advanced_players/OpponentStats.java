@@ -34,17 +34,16 @@ public class OpponentStats {
 		return roundCnt[0] == 0 ? 0 : (sum(FR)) / roundCnt[0];
 	}
 
-	public double getHandRange(String board) {
+	public double getHandRange() {
 		double HR = 1.0;
-		int index = getIndex(board);
-		for (int i = 0; i <= index; i++)
+		for (int i = 0; i < FR.length; i++)
 			HR *= roundCnt[i] < 10 ? (1 - defaultFR[i]) : (1 - FR[i] / roundCnt[i]);
 		return HR > 0.01 ? HR : 0.01;
 	}
 
 	public double getAggression(String board) {
 		int index = getIndex(board);
-		return actionCnt[index] == 0 ? 0 : AA[index] / actionCnt[index];
+		return actionCnt[index] < 10 ? defaultAA[index] : AA[index] / actionCnt[index];
 	}
 
 	public void gameUpdate(Result result) {
@@ -84,6 +83,14 @@ public class OpponentStats {
 			sum += A[i];
 		return sum;
 	}
+	
+	public double[] getStats(String board) {
+		double[] stats = new double[3];
+		stats[0] = getHandRange();
+		stats[1] = getFoldRate(board);
+		stats[2] = getAggression(board);
+		return stats;
+	}
 
 	private int getIndex(String board) {
 		switch (board.length()) {
@@ -103,5 +110,6 @@ public class OpponentStats {
 	double[] AA;
 	double[] actionCnt;
 	double[] roundCnt;
-	final double[] defaultFR = { 0.20, 0.25, 0.25, 0.25 };
+	final double[] defaultFR = { 0.33, 0.45, 0.15, 0.15 };
+	final double[] defaultAA = { 0.85, 0.25, 0.25, 0.15 };
 }

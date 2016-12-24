@@ -1,13 +1,16 @@
 package holdem;
 
 abstract public class ActionInfoBase {
-	ActionInfoBase(ActionBase action, Board board) {
-		this.boardForDisplay = board.display();
-		this.board = board.toString();
+	ActionInfoBase(ActionBase action, TableInfo info) {
+		this.boardForDisplay = info.board;
+		this.board = info.board.toString();
 		this.playerName = action.player.getName();
 		this.playerID = action.player.id;
 		this.amt = action.player.seat.bet;
-		this.AIA = amt - action.bet;
+		this.AIA = (amt - action.bet) / (double)info.potSize;
+		if (AIA < 0) AIA = 0;
+		aia = amt - info.currentBet;
+		aggression = (double)(action.player.seat.bet - info.currentBet) / (info.potSize + action.player.seat.bet - action.bet);
 	}
 	
 	abstract public String toString();
@@ -25,5 +28,7 @@ abstract public class ActionInfoBase {
 	public String playerName;
 	public int playerID;
 	public int amt;
-	public int AIA; //Amount-In-Addition
+	public double AIA; //Amount-In-Addition
+	public int aia;
+	public double aggression;
 }

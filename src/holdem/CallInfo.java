@@ -2,8 +2,8 @@ package holdem;
 
 public class CallInfo extends ActionInfoBase {
 
-	CallInfo(ActionBase action, Board board) {
-		super(action, board);
+	CallInfo(ActionBase action, TableInfo info) {
+		super(action, info);
 	}
 
 	@Override

@@ -9,30 +9,28 @@ import simple_players.*;
 
 public class NLHeadsUpEvaluation implements Exp {
 
-	public NLHeadsUpEvaluation(String performanceLog, String gameLog) throws IOException, Exception {
+	public NLHeadsUpEvaluation(PlayerBase agent, int deckNum, String performanceLog, String gameLog)
+			throws IOException, Exception {
 		// Update to evaluate different agent / against different opponents
 		this.opponents = new PlayerBase[4];
-		this.agent = new LSTMNoLimitTester(0, new LSTMNoLimitTesterGenome("LSTMNoLimitTesterGenome.txt"));
+		this.agent = agent;
 		this.opponents[0] = new CandidStatistician(-1);
 		this.opponents[1] = new HotheadManiac(-2);
 		this.opponents[2] = new ScaredLimper(-3);
 		this.opponents[3] = new CallingMachine(-4);
 		this.performanceLog = performanceLog;
 		this.gameLog = gameLog;
-		this.deckNum = 1500;
+		this.deckNum = deckNum;
 	}
-	
-	public NLHeadsUpEvaluation(PlayerBase agent, int deckNum, String performanceLog, String gameLog) throws IOException, Exception {
+
+	public NLHeadsUpEvaluation(PlayerBase agent, PlayerBase[] opponents, int deckNum, String performanceLog,
+			String gameLog) throws IOException, Exception {
 		// Update to evaluate different agent / against different opponents
-		this.opponents = new PlayerBase[4];
+		this.opponents = opponents;
 		this.agent = agent;
-		this.opponents[0] = new CarefulStatistician(-1);
-		this.opponents[1] = new HotheadManiac(-2);
-		this.opponents[2] = new ScaredLimper(-3);
-		this.opponents[3] = new CallingMachine(-4);
 		this.performanceLog = performanceLog;
 		this.gameLog = gameLog;
-		this.deckNum =  deckNum;
+		this.deckNum = deckNum;
 	}
 
 	@Override
@@ -46,7 +44,8 @@ public class NLHeadsUpEvaluation implements Exp {
 			System.out.println("SB amount: " + SBAmt);
 			System.out.println("Buy-in amount: " + buyInAmt);
 			NLHeadsUpTable headsUpTable = new NLHeadsUpTable(agent, opponents[i], SBAmt, buyInAmt, deckNum);
-			System.out.println("Agent Perforance: " + headsUpTable.start(i + "_" + performanceLog, i + "_" + gameLog)[0] + " mBB/hand\n");
+			System.out.println("Agent Perforance: " + headsUpTable.start(i + "_" + performanceLog, i + "_" + gameLog)[0]
+					+ " mBB/hand\n");
 		}
 	}
 

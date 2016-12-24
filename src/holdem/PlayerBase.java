@@ -106,17 +106,17 @@ public abstract class PlayerBase {
 
 	public abstract ActionBase getAction(TableInfo info) throws IOException, Exception;
 	
-	void observe(ActionBase action, Board board) {
+	void observe(ActionBase action, TableInfo info) {
 		if (action.getClass() == Fold.class)
-			observe(new FoldInfo(action, board));
+			observe(new FoldInfo(action, info));
 		if (action.getClass() == Check.class)
-			observe(new CheckInfo(action, board));
+			observe(new CheckInfo(action, info));
 		if (action.getClass() == Call.class)
-			observe(new CallInfo(action, board));
+			observe(new CallInfo(action, info));
 		if (action.getClass() == Raise.class)
-			observe(new RaiseInfo(action, board));
+			observe(new RaiseInfo(action, info));
 		if (action.getClass() == AllIn.class)
-			observe(new AllInInfo(action, board));
+			observe(new AllInInfo(action, info));
 	}
 
 	public abstract void observe(ActionInfoBase actionInfo);

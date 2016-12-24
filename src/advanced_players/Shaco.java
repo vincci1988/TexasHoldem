@@ -22,6 +22,7 @@ public class Shaco extends PlayerBase implements Statistician {
 		ostats = new OpponentStats();
 		board = "UNSPECIFIED";
 		previousBet = 0;
+		rand = new Random();
 	}
 
 	@Override
@@ -66,11 +67,21 @@ public class Shaco extends PlayerBase implements Statistician {
 		return "Shaco (ID = " + id + ")";
 	}
 
-	private ActionBase preflop(TableInfo info, double handStrength) {
+	private ActionBase preflop(TableInfo info, double handStrength) throws IOException {
 		// 1. opponent called
 		// 2. opponent has not made her move
 		if (info.currentBet == getMyBet() || getMyBet() == info.BBAmt / 2) {
-			int ideal = 3 * info.currentBet;
+			int ideal = (int) (2.5 * info.BBAmt);
+			if (info.currentBet == getMyBet()) {
+				if (handStrength < 0.375)
+					return new Check(this);
+				if (handStrength < 0.5)
+					return rand.nextDouble() < (handStrength - 0.375) / 0.125
+							? (ideal < getMyBet() + getMyStack() ? new Raise(this, ideal) : new AllIn(this))
+							: new Check(this);
+			}
+			if (handStrength < 0.375)
+				return new Call(this);
 			return ideal < getMyBet() + getMyStack() ? new Raise(this, ideal) : new AllIn(this);
 		}
 
@@ -81,28 +92,29 @@ public class Shaco extends PlayerBase implements Statistician {
 			return ideal < getMyBet() + getMyStack() ? new Raise(this, ideal) : new AllIn(this);
 		}
 
-		double oc = info.currentBet / ostats.getAggression(info.board);
-		if (oc < 1.0)
-			oc = 1.0;
-		if (handStrength > 0.2 * oc + 0.2)
+		double oc = (double) (info.currentBet - previousBet) / (info.potSize + previousBet - info.currentBet)
+				/ ostats.getAggression(info.board);
+		handStrength = adjustHandStrength(handStrength, oc, ostats.getHandRange());
+		if (handStrength > getPotOdds(info))
 			return info.currentBet < getMyBet() + getMyStack() ? new Call(this) : new AllIn(this);
-
 		if (rand.nextDouble() < ostats.getFoldRate(info.board) / oc) {
 			int ideal = 2 * info.currentBet + info.potSize - getMyBet();
 			return ideal < getMyBet() + getMyStack() ? new Raise(this, ideal) : new AllIn(this);
 		}
 		return new Fold(this);
+
 	}
 
-	private ActionBase flop_turn_river(TableInfo info, double handStrength) {
+	private ActionBase flop_turn_river(TableInfo info, double handStrength) throws IOException {
 		double fr = ostats.getFoldRate(info.board);
 		if (info.currentBet == getMyBet())
 			return FirstMoveOrOpponentChecked(info, handStrength, fr);
 		return opponentRaised(info, handStrength, fr);
 	}
 
-	private ActionBase FirstMoveOrOpponentChecked(TableInfo info, double handStrength, double foldRate) {
-		handStrength = adjustHandStrength(handStrength, onButton(info) ? 0 : 1.0, ostats.getHandRange(info.board));
+	private ActionBase FirstMoveOrOpponentChecked(TableInfo info, double handStrength, double foldRate)
+			throws IOException {
+		handStrength = adjustHandStrength(handStrength, onButton(info) ? 0 : 1.0, ostats.getHandRange());
 		if (foldRate == 0)
 			return handStrength > 0.5 ? new AllIn(this) : new Check(this);
 		if (handStrength == 0.5)
@@ -152,9 +164,10 @@ public class Shaco extends PlayerBase implements Statistician {
 		return new Check(this);
 	}
 
-	private ActionBase opponentRaised(TableInfo info, double handStrength, double foldRate) {
-		double oc = (info.currentBet - previousBet) / ostats.getAggression(info.board);
-		handStrength = adjustHandStrength(handStrength, oc, ostats.getHandRange(info.board));
+	private ActionBase opponentRaised(TableInfo info, double handStrength, double foldRate) throws IOException {
+		double oc = (double) (info.currentBet - previousBet) / (info.potSize + previousBet - info.currentBet)
+				/ ostats.getAggression(info.board);
+		handStrength = adjustHandStrength(handStrength, oc, ostats.getHandRange());
 		double potOdds = getPotOdds(info);
 		if (foldRate == 0 || opponentAllIn(info)) {
 			if (handStrength > 0.5)
@@ -219,8 +232,11 @@ public class Shaco extends PlayerBase implements Statistician {
 		return aggressiveReward > passiveReward ? bestAggressive : bestPassive;
 	}
 
-	private double adjustHandStrength(double rawHandStrength, double opponentAggression, double opponentHandRange) {
-		double concern = 1 / opponentHandRange + opponentAggression;
+	private double adjustHandStrength(double rawHandStrength, double opponentAggression, double opponentHandRange)
+			throws IOException {
+		double concern = (opponentAggression < 1.0 ? 1.0 : 1.368 / (1 + Math.exp(-opponentAggression)))
+				/ opponentHandRange;
+		//System.out.println(opponentHandRange);
 		return Math.pow(rawHandStrength, concern);
 	}
 
@@ -240,4 +256,5 @@ public class Shaco extends PlayerBase implements Statistician {
 	private OpponentStats ostats;
 	private int previousBet;
 	private String board;
+	private Random rand;
 }

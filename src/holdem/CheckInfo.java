@@ -2,8 +2,8 @@ package holdem;
 
 public class CheckInfo extends ActionInfoBase {
 
-	CheckInfo(ActionBase action, Board board) {
-		super(action, board);
+	CheckInfo(ActionBase action, TableInfo info) {
+		super(action, info);
 	}
 
 	@Override

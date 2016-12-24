@@ -69,8 +69,8 @@ public class Seat implements Comparable<Seat> {
 		return null;
 	}
 	
-	void receive(ActionBase action, Board board) {
-		if (player != null) player.observe(action, board);
+	void receive(ActionBase action, TableInfo info) {
+		if (player != null) player.observe(action, info);
 	}
 	
 	void receive(Result resultInfo) throws Exception {

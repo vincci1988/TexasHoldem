@@ -3,8 +3,10 @@ package evolvable_players;
 import java.io.IOException;
 
 import LSTMPlus.*;
+import advanced_players.OpponentStats;
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
+import holdem.ActionStats;
 import holdem.AllIn;
 import holdem.Call;
 import holdem.Check;
@@ -24,8 +26,10 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 		matchLayer = new LSTMLayer[matchLayerCnt];
 		for (int i = 0; i < matchLayerCnt; i++)
 			matchLayer[i] = new LSTMLayer(inputSize, matchLayerCellCnt);
-		cNet = new FFNetwork(gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt, hiddenCnt,
-				outputSize);
+		cNet = new FFNetwork(ostatsLength + gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt,
+				hiddenCnt, outputSize);
+		ostats = new OpponentStats();
+		astats = new ActionStats();
 	}
 
 	public LSTMNoLimitTester(int id, LSTMNoLimitTesterGenome genome) throws Exception {
@@ -53,9 +57,14 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 		for (int i = 0; i < matchLayerCnt; i++)
 			matchLayer[i] = new LSTMLayer(inputSize, matchLayerCellCnt, Util.subArray(genome.getGenes(),
 					gameLayerGenomeLength * gameLayerCnt + matchLayerGenomeLength * i, matchLayerGenomeLength));
-		cNet = new FFNetwork(gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt, hiddenCnt, outputSize,
-				Util.tail(genome.getGenes(), FFNetwork.getGenomeLength(
-						gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt, hiddenCnt, outputSize)));
+		cNet = new FFNetwork(ostatsLength + gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt,
+				hiddenCnt, outputSize,
+				Util.tail(genome.getGenes(),
+						FFNetwork.getGenomeLength(
+								ostatsLength + gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt,
+								hiddenCnt, outputSize)));
+		ostats = new OpponentStats();
+		astats = new ActionStats();
 	}
 
 	@Override
@@ -71,11 +80,15 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	public static int getGenomeLength() {
 		return LSTMLayer.getGenomeLength(inputSize, gameLayerCellCnt) * gameLayerCnt
-				+ LSTMLayer.getGenomeLength(inputSize, matchLayerCellCnt) * matchLayerCnt + FFNetwork.getGenomeLength(
-						gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt, hiddenCnt, outputSize);
+				+ LSTMLayer.getGenomeLength(inputSize, matchLayerCellCnt) * matchLayerCnt
+				+ FFNetwork.getGenomeLength(
+						ostatsLength + gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt, hiddenCnt,
+						outputSize);
 	}
 
 	public void matchStart() {
+		ostats.reset();
+		astats.reset();
 		for (int i = 0; i < gameLayerCnt; i++)
 			gameLayer[i].reset();
 		for (int i = 0; i < matchLayerCnt; i++)
@@ -122,7 +135,14 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 			return new AllIn(this);
 		int diff = targetBet - info.currentBet - info.minRaise;
 		if (diff >= 0) {
-			return new Raise(this, info.currentBet + info.minRaise + (diff / info.BBAmt) * info.BBAmt);
+			//int potSize = info.potSize + info.currentBet - getMyBet();
+			//int raiseTo = info.currentBet + (2 * diff / potSize) * potSize / 2;
+			int raiseTo = info.currentBet + (diff / info.BBAmt) * info.BBAmt;
+			//if (raiseTo > info.currentBet + 2 * potSize)
+			//	raiseTo = info.currentBet + 2 * potSize;
+			if (raiseTo < info.currentBet + info.minRaise)
+				return getMyBet() == info.currentBet ? new Check(this) : new Call(this);
+			return new Raise(this, raiseTo);
 		}
 		return getMyBet() == info.currentBet ? new Check(this) : new Call(this);
 
@@ -130,12 +150,15 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	@Override
 	public void observe(ActionInfoBase actionInfo) {
-		// TODO Auto-generated method stub
-
+		if (actionInfo.playerID != this.id) {
+			ostats.actionUpdate(actionInfo);
+		}
+		astats.update(this.id, actionInfo);
 	}
 
 	@Override
 	public void observe(Result resultInfo) {
+		ostats.gameUpdate(resultInfo);
 		for (int i = 0; i < gameLayerCnt; i++)
 			gameLayer[i].reset();
 	}
@@ -166,12 +189,15 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 	public LSTMLayer[] gameLayer;
 	public LSTMLayer[] matchLayer;
 	public FFNetwork cNet;
+	public OpponentStats ostats;
+	public ActionStats astats;
 
 	public static final int inputSize = 5;
 	public static final int gameLayerCnt = 10;
 	public static final int gameLayerCellCnt = 5;
 	public static final int matchLayerCnt = 1;
 	public static final int matchLayerCellCnt = 10;
+	public static final int ostatsLength = 0;
 	public static final int hiddenCnt = 7;
 	public static final int outputSize = 1;
 }
