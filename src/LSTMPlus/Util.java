@@ -100,6 +100,13 @@ public class Util {
 		gaussianInit(X, 0.0, 1.0);
 	}
 	
+	public static void rangeCheck(double[] X, double from, double to) {
+		for (int i = 0; i < X.length; i++) {
+			if (X[i] < from) X[i] = from;
+			if (X[i] > to) X[i] = to;
+		}
+	}
+	
 	public static void gaussianInit(double[] X, double mean, double var) {
 		Random rand = new Random();
 		for (int i = 0; i < X.length; i++)

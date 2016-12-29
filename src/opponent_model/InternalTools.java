@@ -16,6 +16,13 @@ import holdem.TableInfo;
 
 public class InternalTools {
 	
+	static double[] zeros() {
+		double[] ans = new double[NodeStats.dimension];
+		for (int i = 0; i < ans.length; i++)
+			ans[i] = 0;
+		return ans;
+	}
+	
 	static String getStageName(int stage) {
 		if (stage == 0) return "PREFLOP";
 		if (stage == 1) return "FLOP";

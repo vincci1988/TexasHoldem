@@ -107,7 +107,6 @@ class GameTree {
 			node.stats.significance = 0;
 		if (!(node instanceof Root) && node.stats.significance == 0) {
 				node.parent.children.remove(node);
-				System.out.println("pruned");
 		} else {
 			Collections.sort(node.children);
 			for (int i = 0; i < node.children.size(); i++)

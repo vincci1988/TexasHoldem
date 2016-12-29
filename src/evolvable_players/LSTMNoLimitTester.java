@@ -3,10 +3,8 @@ package evolvable_players;
 import java.io.IOException;
 
 import LSTMPlus.*;
-import advanced_players.OpponentStats;
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
-import holdem.ActionStats;
 import holdem.AllIn;
 import holdem.Call;
 import holdem.Check;
@@ -28,8 +26,6 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 			matchLayer[i] = new LSTMLayer(inputSize, matchLayerCellCnt);
 		cNet = new FFNetwork(ostatsLength + gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt,
 				hiddenCnt, outputSize);
-		ostats = new OpponentStats();
-		astats = new ActionStats();
 	}
 
 	public LSTMNoLimitTester(int id, LSTMNoLimitTesterGenome genome) throws Exception {
@@ -63,8 +59,6 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 						FFNetwork.getGenomeLength(
 								ostatsLength + gameLayerCellCnt * gameLayerCnt + matchLayerCellCnt * matchLayerCnt,
 								hiddenCnt, outputSize)));
-		ostats = new OpponentStats();
-		astats = new ActionStats();
 	}
 
 	@Override
@@ -87,8 +81,6 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 	}
 
 	public void matchStart() {
-		ostats.reset();
-		astats.reset();
 		for (int i = 0; i < gameLayerCnt; i++)
 			gameLayer[i].reset();
 		for (int i = 0; i < matchLayerCnt; i++)
@@ -135,11 +127,10 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 			return new AllIn(this);
 		int diff = targetBet - info.currentBet - info.minRaise;
 		if (diff >= 0) {
-			//int potSize = info.potSize + info.currentBet - getMyBet();
-			//int raiseTo = info.currentBet + (2 * diff / potSize) * potSize / 2;
-			int raiseTo = info.currentBet + (diff / info.BBAmt) * info.BBAmt;
-			//if (raiseTo > info.currentBet + 2 * potSize)
-			//	raiseTo = info.currentBet + 2 * potSize;
+			int potSize = info.potSize + info.currentBet - getMyBet();
+			int raiseTo = info.currentBet + (2 * diff / potSize) * potSize / 2;
+			if (raiseTo > info.currentBet + potSize)
+				raiseTo = info.currentBet + potSize;
 			if (raiseTo < info.currentBet + info.minRaise)
 				return getMyBet() == info.currentBet ? new Check(this) : new Call(this);
 			return new Raise(this, raiseTo);
@@ -150,15 +141,10 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 
 	@Override
 	public void observe(ActionInfoBase actionInfo) {
-		if (actionInfo.playerID != this.id) {
-			ostats.actionUpdate(actionInfo);
-		}
-		astats.update(this.id, actionInfo);
 	}
 
 	@Override
 	public void observe(Result resultInfo) {
-		ostats.gameUpdate(resultInfo);
 		for (int i = 0; i < gameLayerCnt; i++)
 			gameLayer[i].reset();
 	}
@@ -189,8 +175,6 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 	public LSTMLayer[] gameLayer;
 	public LSTMLayer[] matchLayer;
 	public FFNetwork cNet;
-	public OpponentStats ostats;
-	public ActionStats astats;
 
 	public static final int inputSize = 5;
 	public static final int gameLayerCnt = 10;

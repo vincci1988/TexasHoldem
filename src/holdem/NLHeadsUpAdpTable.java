@@ -5,8 +5,6 @@ package holdem;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import evolvable_players.LSTMNoLimitTester;
-
 public class NLHeadsUpAdpTable extends TableBase {
 
 	public NLHeadsUpAdpTable(PlayerBase agent, PlayerBase[] opponents, int SBAmt, int buyInAmt, int maxGameCnt,
@@ -47,7 +45,6 @@ public class NLHeadsUpAdpTable extends TableBase {
 					game();
 					gameNetWins[maxDeckCnt * o + i] += getGameNetWin(previousBalance);
 				}
-				System.out.println(((LSTMNoLimitTester)agent).astats);
 			}			
 			/*
 			System.out.print((r + 1) + ": ");

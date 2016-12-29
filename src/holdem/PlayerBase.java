@@ -44,17 +44,17 @@ public abstract class PlayerBase {
 		if (amtToCall > getMyStack()) amtToCall = getMyStack();
 		return amtToCall / (amtToCall + info.potSize);
 	}
-
-	protected String peek() {
-		return seat == null ? null : seat.getHoleCards();
-	}
 	
-	protected int getMyBet() {
+	public int getMyBet() {
 		return seat == null ? 0 : seat.bet;
 	}
 	
-	protected int getMyStack() {
+	public int getMyStack() {
 		return seat == null ? 0 : seat.stack;
+	}
+	
+	protected String peek() {
+		return seat == null ? null : seat.getHoleCards();
 	}
 
 	ActionBase give(int amt) {

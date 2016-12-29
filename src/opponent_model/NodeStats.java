@@ -50,6 +50,18 @@ class NodeStats {
 		return report;
 	}
 
+	public double[] toArray() {
+		double[] array = new double[dimension];
+		array[0] = oppFold + myFold + showdown; //occurrence count
+		array[1] = oppFold; //opponent fold
+		array[2] = myFold; //my fold
+		array[3] = showdown; //showdown
+		array[4] = oSDH_M; //opponent showdown strength: mean
+		array[5] = oSDH_SoS; //opponent showdown strength: sum of square;
+		array[6] = cReward; //cumulative reward
+		return array;
+	}
+	
 	int frequency;
 	int oppFold;
 	int myFold;
@@ -58,4 +70,7 @@ class NodeStats {
 	double oSDH_SoS; // Opponent hand strength sum-of-square at showdown
 	double cReward;
 	double significance;
+	
+	static final int dimension = 7;
 }
+	

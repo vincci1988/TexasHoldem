@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 
 public abstract class NumericGenome extends GenomeBase {
 	
-	NumericGenome(double[] genes) {
+	protected NumericGenome(double[] genes) {
 		this.genes = genes;
 	}
 	

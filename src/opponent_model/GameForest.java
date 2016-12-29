@@ -82,7 +82,7 @@ public class GameForest implements Statistician {
 		if (actionInfo.playerID == myID && !(actionInfo instanceof FoldInfo))
 			myCurrentBet = actionInfo.amt;
 		if (trees[index()].updateAction(actionInfo) && stage < 3) {
-			intel.updateRecord(trees[index()].getCurrent().stats);
+			intel.updateRecord(trees[index()].getCurrent());
 			myPreviousBet += myCurrentBet;
 			myCurrentBet = 0;
 			stage++;

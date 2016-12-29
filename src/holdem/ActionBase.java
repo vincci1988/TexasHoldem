@@ -7,6 +7,10 @@ public abstract class ActionBase {
 		this.bet = player.getMyBet();
 	}
 	
+	public int getBet() {
+		return bet;
+	}
+	
 	PlayerBase player;
 	int bet;
 }

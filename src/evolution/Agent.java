@@ -29,5 +29,5 @@ public class Agent implements Comparable<Agent> {
 	public double[] stats;
 	public PlayerBase player;
 	
-	public static final int opponentCnt = 4;
+	public static final int opponentCnt = 5;
 }

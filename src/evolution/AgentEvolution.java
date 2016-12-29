@@ -5,7 +5,11 @@ import java.io.PrintWriter;
 import java.util.Collections;
 
 import LSTM.Cell;
+import ahri.Ahri;
+import ahri.AhriGenome;
 import advanced_players.Shaco;
+import ashe.Ashe;
+import ashe.AsheGenome;
 import evolvable_players.*;
 import experiments.NLHeadsUpEvaluation;
 import holdem.NLHeadsUpTable;
@@ -13,21 +17,22 @@ import holdem.PlayerBase;
 import simple_players.*;
 
 @SuppressWarnings("unused")
-public class LSTMPlayerEvolution extends EvolutionBase {
+public class AgentEvolution extends EvolutionBase {
 
-	public LSTMPlayerEvolution() throws Exception {
+	public AgentEvolution() throws Exception {
 		super();
-		opponents = new PlayerBase[4];
-		opponents[0] = new CandidStatistician(-1);
-		opponents[1] = new ScaredLimper(-2);
-		opponents[2] = new HotheadManiac(-3);
-		opponents[3] = new CallingMachine(-4);
+		opponents = new PlayerBase[1];
+		//opponents[0] = new CandidStatistician(-1);
+		//opponents[1] = new ScaredLimper(-2);
+		//opponents[2] = new HotheadManiac(-3);
+		//opponents[3] = new CallingMachine(-4);
+		opponents[0] = new Shaco(-5);
 		avgSurvivorFitness = 0;
 		std = 0;
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new LSTMNoLimitTester(id++)));//, "LSTMNoLimitTesterGenome.txt")));
+			population.add(new Agent(new Ahri(id++)));//, "AhriGenome.txt")));
 	}
 
 	@Override
@@ -46,14 +51,19 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			reproduce();
 			System.out.println("<END GENERATION " + (i + 1) + ">");
 			log.println("<END GENERATION " + (i + 1) + ">\n");
+			if ((i + 1) % 10 == 0) {
+				Ahri champion = (Ahri) population.get(population.size() - 1).player;
+				((AhriGenome) champion.getGenome()).writeToFile("AhriGenome_Gen" + (i + 1) + ".txt");
+			}
+			
 		}
 		log.close();
 		System.out.println();
 		System.out.println("<BEGIN: CHAMPION EVALUATION>");
-		LSTMNoLimitTester champion = (LSTMNoLimitTester) population.get(population.size() - 1).player;
-		((LSTMNoLimitTesterGenome) champion.getGenome()).writeToFile("LSTMNoLimitTesterGenome.txt");
+		Ahri champion = (Ahri) population.get(population.size() - 1).player;
+		((AhriGenome) champion.getGenome()).writeToFile("AhriGenome.txt");
 		NLHeadsUpEvaluation eval = new NLHeadsUpEvaluation(champion, opponents, champDeckCnt,
-				"NLHeadsUpPerformance.txt", "NLHeadsUpGameLog.txt");
+				"pfm_ashe", "glog_ashe");
 		eval.run();
 		System.out.println("<END: CHAMPION EVALUATION>");
 	}
@@ -63,16 +73,14 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 		avgSurvivorFitness = 0;
 		std = 0;
 		for (int i = 0; i < population.size(); i++) {
-			LSTMNoLimitTester player = (LSTMNoLimitTester) population.get(i).player;
+			Ahri player = (Ahri) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
-			res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] + ", ";
-			res += "SL = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
-			res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
-			res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
-			res += "VL = " + population.get(i).stats[4] + " / " + maxStats[4] + ", ";
-			res += "CF = " + population.get(i).stats[5] + " / " + maxStats[5] + ", ";
-			res += "SH = " + population.get(i).stats[6] + " / " + maxStats[6] + " }\n";
+			//res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] + ", ";
+			//res += "SL = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
+			//res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
+			//res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
+			res += "SH = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 		}
@@ -113,23 +121,23 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 			if (population.get(i).fitness >= avgSurvivorFitness)
 				elitePoolSize++;
 			else {
-				LSTMNoLimitTesterGenome survivorGenome = (LSTMNoLimitTesterGenome) ((LSTMNoLimitTester) population
+				AhriGenome survivorGenome = (AhriGenome) ((Ahri) population
 						.get(i).player).getGenome();
 				survivorGenome.mutate(mutationRate, mutationStrength);
-				population.get(i).player = new LSTMNoLimitTester(population.get(i).player.getID(), survivorGenome);
+				population.get(i).player = new Ahri(population.get(i).player.getID(), survivorGenome);
 			}
 			population.get(i).fitness = 0.0;
 			for (int j = 0; j < Agent.opponentCnt; j++)
 				population.get(i).stats[j] = 0.0;
 		}
 		for (int i = 0; population.size() != populationSize; i++) {
-			LSTMNoLimitTester mom = (LSTMNoLimitTester) population.get(i % elitePoolSize).player;
-			LSTMNoLimitTester dad = (LSTMNoLimitTester) population.get(random.nextInt(elitePoolSize)).player;
-			LSTMNoLimitTesterGenome dadGenome = (LSTMNoLimitTesterGenome) dad.getGenome();
-			LSTMNoLimitTesterGenome momGenome = (LSTMNoLimitTesterGenome) mom.getGenome();
-			LSTMNoLimitTesterGenome childGenome = (LSTMNoLimitTesterGenome) momGenome.crossOver(dadGenome);
+			Ahri mom = (Ahri) population.get(i % elitePoolSize).player;
+			Ahri dad = (Ahri) population.get(random.nextInt(elitePoolSize)).player;
+			AhriGenome dadGenome = (AhriGenome) dad.getGenome();
+			AhriGenome momGenome = (AhriGenome) mom.getGenome();
+			AhriGenome childGenome = (AhriGenome) momGenome.crossOver(dadGenome);
 			childGenome.mutate(mutationRate, mutationStrength);
-			LSTMNoLimitTester child = new LSTMNoLimitTester(id++, childGenome);
+			Ahri child = new Ahri(id++, childGenome);
 			population.add(new Agent(child));
 		}
 		Collections.reverse(population);
@@ -140,7 +148,7 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
-	double[] maxStats = { 10000, 1000, 40000, 40000 };//, 20000, 10000, 10000 };
+	double[] maxStats = { 6000, 1000, 40000, 40000, 1000 };
 
 	static final int populationSize = 20;
 	static final int maxGenCnt = 200;
@@ -151,8 +159,8 @@ public class LSTMPlayerEvolution extends EvolutionBase {
 	static final double survivalRate = 0.5;
 	static final double initialMutationRate = 0.1;
 	static final double finalMutationRate = 0.05;
-	static final double initialMutationStrength = 0.5;
+	static final double initialMutationStrength = 0.25;
 	static final double finalMutationStrength = 0.1;
-	static final String logPath = "LSTMNoLimitTesterEvolutionLog.txt";
+	static final String logPath = "AhriEvolutionLog.txt";
 	static int id = 0;
 }
