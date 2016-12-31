@@ -1,4 +1,4 @@
-package opponent_model;
+package ashe;
 
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
@@ -103,6 +103,25 @@ public class InternalTools {
 			return getRaiseCode(actionInfo.aggression);
 		if (actionInfo instanceof AllInInfo)
 			return 10;
+		return 0;
+	}
+	
+	static double getRaiseAmtToPot(int code, int potSize) {
+		double maxRaise = (Params.stk - potSize / 2) / potSize;
+		if (code == 4)
+			return Math.max(maxRaise, 0.125);
+		if (code == 5)
+			return Math.max(maxRaise, 0.5);
+		if (code == 6)
+			return Math.max(maxRaise, 1.0);
+		if (code == 7)
+			return Math.max(maxRaise, 1.5);
+		if (code == 8)
+			return Math.max(maxRaise, 2.5);
+		if (code == 9)
+			return Math.max(maxRaise, 4.0);
+		if (code == 10)
+			return maxRaise;
 		return 0;
 	}
 

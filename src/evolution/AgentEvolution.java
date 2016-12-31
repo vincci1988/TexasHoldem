@@ -8,8 +8,8 @@ import LSTM.Cell;
 import ahri.Ahri;
 import ahri.AhriGenome;
 import advanced_players.Shaco;
-import ashe.Ashe;
-import ashe.AsheGenome;
+//import ashe.Ashe;
+//import ashe.AsheGenome;
 import evolvable_players.*;
 import experiments.NLHeadsUpEvaluation;
 import holdem.NLHeadsUpTable;
@@ -32,7 +32,7 @@ public class AgentEvolution extends EvolutionBase {
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new Ahri(id++)));//, "AhriGenome.txt")));
+			population.add(new Agent(new Ahri(id++)));//, "AhriGenome_Gen70.txt")));
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class AgentEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
-	double[] maxStats = { 6000, 1000, 40000, 40000, 1000 };
+	double[] maxStats = { 6000, 10000, 40000, 40000, 1000 };
 
 	static final int populationSize = 20;
 	static final int maxGenCnt = 200;

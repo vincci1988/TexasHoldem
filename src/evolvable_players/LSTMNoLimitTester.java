@@ -129,8 +129,8 @@ public class LSTMNoLimitTester extends PlayerBase implements Evolvable, Statisti
 		if (diff >= 0) {
 			int potSize = info.potSize + info.currentBet - getMyBet();
 			int raiseTo = info.currentBet + (2 * diff / potSize) * potSize / 2;
-			if (raiseTo > info.currentBet + potSize)
-				raiseTo = info.currentBet + potSize;
+			if (raiseTo > info.currentBet + 2 * potSize)
+				raiseTo = info.currentBet + 2 * potSize;
 			if (raiseTo < info.currentBet + info.minRaise)
 				return getMyBet() == info.currentBet ? new Check(this) : new Call(this);
 			return new Raise(this, raiseTo);

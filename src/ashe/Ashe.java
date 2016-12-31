@@ -1,10 +1,9 @@
 package ashe;
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.Vector;
 
-import evolvable_players.Evolvable;
-import evolvable_players.GenomeBase;
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
 import holdem.AllIn;
@@ -15,60 +14,27 @@ import holdem.PlayerBase;
 import holdem.Raise;
 import holdem.Result;
 import holdem.TableInfo;
-import opponent_model.GameForest;
-import opponent_model.Intel;
-import opponent_model.Statistician;
 
-public class Ashe extends PlayerBase implements Evolvable, Statistician {
+public class Ashe extends PlayerBase {
 
-	public Ashe(int id) throws Exception {
+	public Ashe(int id) {
 		super(id);
-		forest = new GameForest(id);
-		adviser = new NNAdviser(this);
+		forest = null;
 		forestFile = null;
+		rand = new Random();
 	}
 
-	public Ashe(int id, AsheGenome genome) throws Exception {
+	public Ashe(int id, String forestFile) {
 		super(id);
-		constructByGenome(genome);
-	}
-
-	public Ashe(int id, String genomeFile) throws Exception {
-		super(id);
-		AsheGenome genome = new AsheGenome(genomeFile);
-		constructByGenome(genome);
-	}
-
-	public Ashe(int id, String genomeFile, String forestFile) throws Exception {
-		super(id);
-		AsheGenome genome = new AsheGenome(genomeFile);
-		forest = new GameForest(id, forestFile);
-		adviser = new NNAdviser(this, genome.getGenes());
+		forest = null;
 		this.forestFile = forestFile;
-	}
-
-	private void constructByGenome(AsheGenome genome) throws Exception {
-		forest = new GameForest(id);
-		adviser = new NNAdviser(this, genome.getGenes());
-		forestFile = null;
-	}
-
-	@Override
-	public GenomeBase getGenome() {
-		return ((NNAdviser) adviser).getGenome();
-	}
-
-	public static int getGenomeLength() {
-		return NNAdviser.getGenomeLength();
+		rand = new Random();
 	}
 
 	@Override
 	public void matchStart() {
 		try {
-			if (forestFile == null)
-				forest.reset();
-			else
-				forest = new GameForest(id, forestFile);
+			forest = forestFile == null ? new GameForest(id) : new GameForest(id, forestFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -80,9 +46,14 @@ public class Ashe extends PlayerBase implements Evolvable, Statistician {
 	}
 
 	@Override
-	public ActionBase getAction(TableInfo info) throws Exception {
+	public ActionBase getAction(TableInfo info) throws IOException, Exception {
 		Intel intel = forest.getIntel();
-		return adviser.recommend(info, peek(), intel);
+		Vector<ActionBase> actions = getAvailableActions(info, intel.getBetCnt());
+		if (info.board.length() == 0)
+			return preflop(actions, info, intel);
+		if (info.board.length() < 10)
+			return flopAndTurn(actions, info, intel);
+		return river(actions, info, intel);
 	}
 
 	@Override
@@ -99,17 +70,165 @@ public class Ashe extends PlayerBase implements Evolvable, Statistician {
 		}
 	}
 
+	public void saveForest(String path) throws IOException {
+		forest.save(path);
+		System.out.println("Game forest saved at " + path + " (" + forest.getTotalNodeCnt() + " nodes).");
+	}
+
 	@Override
 	public String getName() {
 		return "Ashe (ID = " + id + ")";
 	}
 
-	public void saveForest(String path) throws IOException {
-		forest.save(path);
-		System.out.println("Game forest saved (" + forest.getTotalNodeCnt() + " nodes).");
+	private ActionBase river(Vector<ActionBase> actions, TableInfo info, Intel intel) throws Exception {
+		double handStrength = GameForest.evaluator.getHandStength(peek(), info.board, 1);
+		double wr = intel.esimateWinRate(handStrength);
+		int best = 0;
+		double bestEquity = Double.NEGATIVE_INFINITY;
+		for (int i = 0; i < actions.size(); i++) {
+			double equity = intel.evaluate(wr, actions.get(i), info);
+			if (equity > bestEquity) {
+				bestEquity = equity;
+				best = i;
+			}
+		}
+		return actions.get(best);
 	}
 
-	Vector<ActionBase> getAvailableActions(TableInfo info, int betCnt) {
+	private ActionBase flopAndTurn(Vector<ActionBase> actions, TableInfo info, Intel intel) throws Exception {
+		double handStrength = GameForest.evaluator.getHandStength(peek(), info.board, 1);
+		// ON BUTTION
+		if (intel.button()) {
+			if (info.currentBet == getMyBet()) {
+				if (handStrength < 0.70) {
+					int best = 0;
+					double bestEquity = Double.NEGATIVE_INFINITY;
+					for (int i = 0; i < actions.size(); i++) {
+						if (actions.get(i) instanceof Raise) {
+							double equity = intel.getFoldEquity(handStrength, (Raise) actions.get(i), info);
+							if (equity > bestEquity) {
+								best = i;
+								bestEquity = equity;
+							}
+						}
+					}
+					if (bestEquity > 0)
+						return actions.get(best);
+					return actions.get(0);
+				}
+				if (rand.nextDouble() > (handStrength - 0.70) / 0.30)
+					return (actions.size() > 2) ? actions.get(2) : actions.get(1);
+				return actions.get(1);
+			}
+			if (intel.getBetCnt() == 1) {
+				if (handStrength < 0.85)
+					return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0)
+							: actions.get(1);
+				if (rand.nextDouble() < 0.5)
+					return actions.size() > 2 ? actions.get(2) : actions.get(1);
+				return actions.get(1);
+			}
+			if (intel.getBetCnt() == 2) {
+				return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0)
+						: actions.get(1);
+			}
+			return actions.get(1);
+		}
+		// NOT ON BUTTON
+		if (info.currentBet == getMyBet()) {
+			if (handStrength < 0.70) {
+				int best = 0;
+				double bestEquity = Double.NEGATIVE_INFINITY;
+				for (int i = 0; i < actions.size(); i++) {
+					if (actions.get(i) instanceof Raise) {
+						double equity = intel.getFoldEquity(handStrength, (Raise) actions.get(i), info);
+						if (equity > bestEquity) {
+							best = i;
+							bestEquity = equity;
+						}
+					}
+				}
+				if (bestEquity > 0)
+					return actions.get(best);
+				return actions.get(0);
+			}
+			if (handStrength < 0.85) {
+				if (rand.nextDouble() < (handStrength - 0.70) / 0.15)
+					return (actions.size() > 2) ? actions.get(2) : actions.get(1);
+				return actions.get(1);
+			}
+			if (rand.nextDouble() < 0.5)
+				return actions.get(1);
+			return actions.get(0);
+		}
+		if (intel.getBetCnt() == 1) {
+			if (handStrength < 0.85)
+				return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0)
+						: actions.get(1);
+			if (rand.nextDouble() < 0.5)
+				return actions.size() > 2 ? actions.get(2) : actions.get(1);
+			return actions.get(1);
+		}
+		if (intel.getBetCnt() == 2) {
+			return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0) : actions.get(1);
+		}
+		return actions.get(1);
+	}
+
+	private ActionBase preflop(Vector<ActionBase> actions, TableInfo info, Intel intel) throws Exception {
+		double handStrength = GameForest.evaluator.getHandStength(peek(), info.board, 1);
+		// ON BUTTION
+		if (intel.button()) {
+			if (intel.getBetCnt() == 1) {
+				if (handStrength < 0.40) {
+					if (intel.getFoldEquity(handStrength, (Raise) actions.get(3), info) > 0)
+						return actions.get(3);
+					return actions.get(0);
+				}
+				if (handStrength > 0.66)
+					return actions.get(3); // pot size bet
+				if (rand.nextDouble() < handStrength)
+					return actions.get(3);
+				return actions.get(2); // half-pot size bet
+			}
+			if (intel.getBetCnt() == 3) {
+				if (handStrength < 0.40)
+					return actions.get(0); // fold
+				if (handStrength > 0.80)
+					return actions.size() > 2 ? actions.get(2) : actions.get(1);
+				return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0)
+						: actions.get(1);
+			}
+			return actions.get(1); // all-in or call;
+		}
+		// NOT ON BUTTON
+		// IF CALLED
+		if (info.currentBet == getMyBet()) {
+			if (handStrength < 0.50) {
+				if (intel.getFoldEquity(handStrength, (Raise) actions.get(2), info) > 0)
+					return actions.get(2);
+				return actions.get(0);
+			}
+			if (rand.nextDouble() < handStrength)
+				return actions.get(2);
+			return actions.get(1);
+		}
+		// 2ND BET
+		if (intel.getBetCnt() == 2) {
+			if (handStrength < 0.40)
+				return actions.get(0);
+			if (handStrength > 0.66)
+				return actions.get(1 + rand.nextInt(actions.size() - 1));
+			return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0) : actions.get(1);
+		}
+		return shouldFold(handStrength, intel.getStateFreq(), getPotOdds(info)) ? actions.get(0) : actions.get(1);
+	}
+
+	private boolean shouldFold(double handStrength, double frequency, double potOdds) {
+		return Math.pow(handStrength, 2 - frequency) < potOdds;
+	}
+
+	private Vector<ActionBase> getAvailableActions(TableInfo info, int betCnt) {
 		int potSizeBet = (info.potSize + info.currentBet - getMyBet());
 		Vector<ActionBase> actions = new Vector<ActionBase>();
 		if (info.currentBet > getMyBet())
@@ -132,6 +251,6 @@ public class Ashe extends PlayerBase implements Evolvable, Statistician {
 	}
 
 	GameForest forest;
-	AdviserBase adviser;
-	private String forestFile;
+	String forestFile;
+	Random rand;
 }

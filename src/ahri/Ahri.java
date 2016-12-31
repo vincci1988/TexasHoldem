@@ -26,9 +26,9 @@ public class Ahri extends PlayerBase implements Evolvable, Statistician {
 		super(id);
 		forest = new GameForest(id);
 		forestFile = null;
-		//arbitrator = new Arbitrator();
-		explorer = new LSTMExplorer(this);
-		//exploiter = new Exploiter(this);
+		arbitrator = new Arbitrator();
+		explorer = new Explorer(this);
+		exploiter = new Exploiter(this);
 	}
 
 	public Ahri(int id, AhriGenome genome) throws Exception {
@@ -54,24 +54,19 @@ public class Ahri extends PlayerBase implements Evolvable, Statistician {
 
 	private void constructByGenome(AhriGenome genome) throws Exception {
 		double[] genes = genome.getGenes();
-		explorer = new LSTMExplorer(this, genes);
-		//arbitrator = new Arbitrator(Util.head(genes, Arbitrator.getGenomeLength()));
-		//explorer = new LSTMExplorer(this, Util.subArray(genes,  Arbitrator.getGenomeLength(), LSTMExplorer.getGenomeLength()));
-		//exploiter = new Exploiter(this, Util.tail(genes, Exploiter.getGenomeLength()));
+		arbitrator = new Arbitrator(Util.head(genes, Arbitrator.getGenomeLength()));
+		explorer = new Explorer(this);
+		exploiter = new Exploiter(this);
 	}
 
 	@Override
 	public GenomeBase getGenome() {
-		//double[] genes = arbitrator.getGenome();
-		double[] genes = null;
-		genes = Util.concat(genes, explorer.getGenome());
-		//genes = Util.concat(genes, exploiter.getGenome());
+		double[] genes = arbitrator.getGenome();
 		return new AhriGenome(genes);
 	}
 
 	public static int getGenomeLength() {
-		//return Arbitrator.getGenomeLength() + LSTMExplorer.getGenomeLength() + Exploiter.getGenomeLength();
-		return LSTMExplorer.getGenomeLength();
+		return Arbitrator.getGenomeLength();
 	}
 
 	@Override
@@ -98,17 +93,15 @@ public class Ahri extends PlayerBase implements Evolvable, Statistician {
 		Vector<ActionBase> actions = getAvailableActions(info, intel.getBetCnt());
 		//double[] current = intel.currentState();
 		//double[][] priors = intel.prior();
-		//double[][] actionVectors = new double[actions.get(0) instanceof Fold ? actions.size() - 1 : actions.size()][];
-		/*
+		double[][] actionVectors = new double[actions.get(0) instanceof Fold ? actions.size() - 1 : actions.size()][];
+		
 		for (int i = 0, j = 0; i < actions.size(); i++) {
 			if (!(actions.get(i) instanceof Fold))
 				actionVectors[j++] = intel.evaluate(actions.get(i), info);
-		}*/
-		return explorer.recommend(actions, info, peek(), null); //intel);
-		/*
-		return arbitrator.exploitable(actionVectors, current, priors) ? exploiter.recommend(actions, info, peek(), intel)
+		}
+		boolean exloit = arbitrator.exploitable(actionVectors);
+		return exloit ? exploiter.recommend(actions, info, peek(), intel)
 				: explorer.recommend(actions, info, peek(), intel);
-		*/
 	}
 
 	@Override
@@ -119,8 +112,7 @@ public class Ahri extends PlayerBase implements Evolvable, Statistician {
 	@Override
 	public void observe(Result resultInfo) {
 		try {
-			//forest.updateResult(resultInfo);
-			explorer.refresh();
+			forest.updateResult(resultInfo);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -159,9 +151,9 @@ public class Ahri extends PlayerBase implements Evolvable, Statistician {
 	}
 
 	GameForest forest;
-	//Arbitrator arbitrator;
-	LSTMExplorer explorer;
-	//Exploiter exploiter;
+	Arbitrator arbitrator;
+	Explorer explorer;
+	Exploiter exploiter;
 
 	private String forestFile;
 }

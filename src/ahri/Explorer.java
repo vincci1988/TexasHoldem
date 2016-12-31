@@ -2,7 +2,6 @@ package ahri;
 
 import java.util.Vector;
 
-import evolvable_players.LSTMNoLimitTester;
 import holdem.ActionBase;
 import holdem.Fold;
 import holdem.TableInfo;
@@ -12,15 +11,12 @@ public class Explorer extends Controller {
 
 	Explorer(Ahri me) throws Exception {
 		super(me);
-		tester = new LSTMNoLimitTester(me.getID(), "explorerGenome.txt");
 	}
 	
 	public void matchStart() {
-		tester.matchStart();
 	}
 	
 	public void gameStart() {
-		tester.gameStart();
 	}
 
 	@Override
@@ -39,5 +35,4 @@ public class Explorer extends Controller {
 		return actions.get(best);
 	}
 	
-	LSTMNoLimitTester tester;
 }

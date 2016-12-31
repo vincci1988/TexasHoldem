@@ -25,6 +25,14 @@ public class Arbitrator {
 	public double[] getGenome() {
 		return Util.concat(ChiefAnalyzer.getGenome(), StateAnalyzer.getGenome());
 	}
+	
+	boolean exploitable(double[][] moves) {
+		for (int i = 0; i < moves.length; i++) {
+			if (moves[i][0] < 10)
+				return false;
+		}
+		return true;
+	}
 
 	boolean exploitable(double[][] moves, double[] current, double[][] priors) throws Exception {
 		for (int i = 0; i < moves.length; i++) {

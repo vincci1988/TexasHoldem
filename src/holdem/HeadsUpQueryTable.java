@@ -8,7 +8,6 @@ import java.util.Scanner;
 import ashe.Ashe;
 import simple_players.ExternalTester;
 
-@SuppressWarnings("unused")
 public class HeadsUpQueryTable extends TableBase {
 
 	public HeadsUpQueryTable(PlayerBase agent, String opponentName, int SBAmt, int buyInAmt, int maxGameCnt)
@@ -51,7 +50,7 @@ public class HeadsUpQueryTable extends TableBase {
 			game();
 			gameLogWriter.println("<END: GAME " + (i + 1) + ">\n");
 			// ============== FOR ASHE TESTS ONLY!!! ==============
-			// ((Ashe)agent).saveForest("forest.txt");
+			((Ashe)agent).saveForest("forest.txt");
 			// ============== FOR ASHE TESTS ONLY!!! ==============
 			performanceLogWriter.println(getReport() + "\n");
 		}
