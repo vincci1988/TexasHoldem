@@ -82,15 +82,7 @@ public class Intel {
 		return node.conditionCode % 2 == 0;
 	}
 
-	public double esimateWinRate(double handStrength) {
-		NodeBase gameRoot = record.firstElement();
-		while (gameRoot.parent != null)
-			gameRoot = gameRoot.parent;
-		double showdownProb = 1.0 * (1.0 + gameRoot.stats.showdown + 0.5 * gameRoot.stats.myFold)
-				/ (1.0 + gameRoot.stats.frequency);
-		return Math.pow(handStrength, 1 / showdownProb);
-	}
-
+	
 	public double getStateFreq() {
 		return getStateFreq(current);
 	}
@@ -126,7 +118,7 @@ public class Intel {
 					expectedRaise /= checkNode.stats.frequency;
 				}
 				return (1 - raiseProb) * (2 * winRate - 1) * info.potSize / 2
-						+ raiseProb * (winRate > expectedRaise / (expectedRaise + info.potSize)
+						+ raiseProb * (winRate > expectedRaise / (2 * expectedRaise + 1.0)
 								? (2 * winRate - 1) * info.potSize * (0.5 + expectedRaise) : -info.potSize / 2);
 			}
 		}
@@ -190,7 +182,7 @@ public class Intel {
 		record.add(leaf);
 	}
 
-	private NodeBase query(ActionBase action, TableInfo tableInfo) {
+	NodeBase query(ActionBase action, TableInfo tableInfo) {
 		int code = -InternalTools.getActionCode(action, tableInfo);
 		for (int i = 0; i < current.children.size(); i++) {
 			if (code == current.children.get(i).conditionCode)
@@ -209,6 +201,6 @@ public class Intel {
 		return node.stats.frequency * 1.0 / (1.0 + node.parent.stats.frequency);
 	}
 
-	private NodeBase current;
-	private Vector<NodeBase> record;
+	NodeBase current;
+	Vector<NodeBase> record;
 }

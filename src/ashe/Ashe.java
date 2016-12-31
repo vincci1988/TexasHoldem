@@ -82,10 +82,11 @@ public class Ashe extends PlayerBase {
 
 	private ActionBase river(Vector<ActionBase> actions, TableInfo info, Intel intel) throws Exception {
 		double handStrength = GameForest.evaluator.getHandStength(peek(), info.board, 1);
-		double wr = intel.esimateWinRate(handStrength);
+		
 		int best = 0;
 		double bestEquity = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < actions.size(); i++) {
+			double wr = estimateWinRate(info, intel, handStrength, actions.get(i));
 			double equity = intel.evaluate(wr, actions.get(i), info);
 			if (equity > bestEquity) {
 				bestEquity = equity;
@@ -226,6 +227,34 @@ public class Ashe extends PlayerBase {
 
 	private boolean shouldFold(double handStrength, double frequency, double potOdds) {
 		return Math.pow(handStrength, 2 - frequency) < potOdds;
+	}
+
+	public double estimateWinRate(Intel intel, double handStrength) {
+		NodeBase node = intel.record.firstElement();
+		while (node.parent != null)
+			node = node.parent;
+		double showdownProb = 1.0 * (1.0 + node.stats.showdown + 0.5 * node.stats.myFold)
+				/ (1.0 + node.stats.frequency);
+		return Math.pow(handStrength, 1 / showdownProb);
+	}
+
+	public double estimateWinRate(TableInfo info, Intel intel, double handStrength, ActionBase action) {
+		if (action instanceof Fold)
+			return 0.0;
+		if (action instanceof Raise) {
+			double potOdds = 1.0 * (((Raise) action).getAmt() - info.currentBet)
+					/ (info.potSize + 2 * ((Raise) action).getAmt() - info.currentBet - getMyBet());
+			if (handStrength < potOdds)
+				return 0;
+			handStrength = 1.0 - (1.0 - handStrength) / (1.0 - potOdds);
+		}
+		if (action instanceof AllIn && getMyStack() + getMyBet() > info.currentBet) {
+			double potOdds = (getMyStack() + getMyBet() - info.currentBet) / Params.stk / 2;
+			if (handStrength < potOdds)
+				return 0;
+			handStrength = 1.0 - (1.0 - handStrength) / (1.0 - potOdds);
+		}
+		return estimateWinRate(intel, handStrength);
 	}
 
 	private Vector<ActionBase> getAvailableActions(TableInfo info, int betCnt) {
