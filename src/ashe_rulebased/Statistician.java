@@ -1,4 +1,4 @@
-package ashe;
+package ashe_rulebased;
 
 public interface Statistician {
 	//public static final String HSDBPath = "/Volumes/My Passport/HSDB";

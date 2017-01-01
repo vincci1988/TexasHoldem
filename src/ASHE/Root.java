@@ -1,4 +1,4 @@
-package ashe;
+package ASHE;
 
 import holdem.ActionInfoBase;
 
@@ -26,14 +26,14 @@ class Root extends NodeBase {
 
 	@Override	
 	String describeNode() {
-		return InternalTools.describeRootCode(conditionCode);
+		return Tools.describeRootCode(conditionCode);
 	}
 
 	@Override
 	NodeBase getNewChild(ActionInfoBase actionInfo) {
 		if ((conditionCode == 0) || (conditionCode % 2 == 1 && conditionCode > 1))
-			return new MyAction(-InternalTools.getActionCode(actionInfo), this);
-		return new OpponentAction(InternalTools.getActionCode(actionInfo), this);
+			return new MyAction(-Tools.getActionCode(actionInfo), this);
+		return new OpponentAction(Tools.getActionCode(actionInfo), this);
 	}
 
 	@Override

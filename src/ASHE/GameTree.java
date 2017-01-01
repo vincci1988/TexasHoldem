@@ -1,4 +1,4 @@
-package ashe;
+package ASHE;
 
 import java.util.Collections;
 
@@ -38,29 +38,25 @@ class GameTree {
 		return isLeaf(current);
 	}
 
-	void backtrackWBS(double normalizedReward) {
+	void backtrackWBS(boolean won) {
 		if (current != root) {
 			for (; current != null; current = current.parent) {
-				if (normalizedReward > 0)
+				if (won)
 					current.stats.oppFold++;
 				else
 					current.stats.myFold++;
-				current.stats.cReward += normalizedReward;
-				current.stats.significance += Math.abs(normalizedReward);
 			}
 			current = root;
 		}
 	}
 
-	void backtrackSD(double normalizedReward, double opponentHandStrength) {
+	void backtrackSD(double opponentHandStrength) {
 		if (current != root) {
 			for (; current != null; current = current.parent) {
 				current.stats.showdown++;
 				current.stats.oSDH_M = (opponentHandStrength + current.stats.oSDH_M * (current.stats.showdown - 1))
 						/ current.stats.showdown;
 				current.stats.oSDH_SoS += Math.pow(opponentHandStrength, 2);
-				current.stats.cReward += normalizedReward;
-				current.stats.significance += Math.abs(normalizedReward);
 			}
 			current = root;
 		}
@@ -102,16 +98,9 @@ class GameTree {
 	}
 
 	private void refresh(NodeBase node) {
-		node.stats.significance -= Params.decay;
-		if (node.stats.significance < 0)
-			node.stats.significance = 0;
-		if (!(node instanceof Root) && node.stats.significance == 0) {
-				node.parent.children.remove(node);
-		} else {
-			Collections.sort(node.children);
-			for (int i = 0; i < node.children.size(); i++)
-				refresh(node.children.get(i));
-		}
+		Collections.sort(node.children);
+		for (int i = 0; i < node.children.size(); i++)
+			refresh(node.children.get(i));
 	}
 
 	private boolean isFirstAction(NodeBase node) {

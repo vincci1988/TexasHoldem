@@ -1,4 +1,4 @@
-package ashe;
+package ASHE;
 
 import holdem.ActionBase;
 import holdem.ActionInfoBase;
@@ -14,14 +14,7 @@ import holdem.Raise;
 import holdem.RaiseInfo;
 import holdem.TableInfo;
 
-public class InternalTools {
-	
-	static double[] zeros() {
-		double[] ans = new double[NodeStats.dimension];
-		for (int i = 0; i < ans.length; i++)
-			ans[i] = 0;
-		return ans;
-	}
+public class Tools {
 	
 	static String getStageName(int stage) {
 		if (stage == 0) return "PREFLOP";
@@ -107,7 +100,7 @@ public class InternalTools {
 	}
 	
 	static double getRaiseAmtToPot(int code, int potSize) {
-		double maxRaise = (Params.stk - potSize / 2) / potSize;
+		double maxRaise = (AsheParams.stk - potSize / 2) / potSize;
 		if (code == 4)
 			return Math.max(maxRaise, 0.125);
 		if (code == 5)

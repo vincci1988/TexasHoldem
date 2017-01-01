@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
-import ashe.Ashe;
+import ashe_rulebased.Ashe;
 import simple_players.ExternalTester;
 
 public class HeadsUpQueryTable extends TableBase {

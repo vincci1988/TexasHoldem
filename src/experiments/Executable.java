@@ -1,9 +1,8 @@
 package experiments;
 
 import advanced_players.Shaco;
-//import ashe.Ashe;
+import ASHE.Ashe;
 import ahri.Ahri;
-import ashe.Ashe;
 import evolvable_players.*;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
@@ -49,7 +48,6 @@ public class Executable {
 			System.out.println(exception);
 			exception.printStackTrace();
 		}
-
 	}
 
 }

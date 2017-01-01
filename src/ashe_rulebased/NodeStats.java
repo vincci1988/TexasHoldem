@@ -1,4 +1,4 @@
-package ashe;
+package ashe_rulebased;
 
 class NodeStats {
 

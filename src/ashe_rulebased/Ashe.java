@@ -1,4 +1,4 @@
-package ashe;
+package ashe_rulebased;
 
 import java.io.IOException;
 import java.util.Random;
