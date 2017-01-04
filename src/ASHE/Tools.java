@@ -14,7 +14,7 @@ import holdem.Raise;
 import holdem.RaiseInfo;
 import holdem.TableInfo;
 
-public class Tools {
+class Tools {
 	
 	static String getStageName(int stage) {
 		if (stage == 0) return "PREFLOP";

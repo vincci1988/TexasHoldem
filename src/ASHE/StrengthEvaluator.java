@@ -8,9 +8,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
-public class StrengthEvaluator {
+class StrengthEvaluator {
 
-	public StrengthEvaluator(String HSDBPath) {
+	StrengthEvaluator(String HSDBPath) {
 		this.HSDBPath = HSDBPath;
 		String separator = System.getProperty("os.name").contains("Windows") ? "\\" : "/";
 		preflopPath = HSDBPath + separator + "preflop" + separator + "preflop.txt";
@@ -25,7 +25,7 @@ public class StrengthEvaluator {
 			maps.add(new HashMap<String, Float>());
 	}
 	
-	public float getMaxStrength(String board) throws IOException {
+	float getMaxStrength(String board) throws IOException {
 		update(board);
 		HashMap<String, Float> map = maps.get(getIndex(board));
 		Set<String> holeCards = map.keySet();
@@ -38,7 +38,7 @@ public class StrengthEvaluator {
 		return maxStrength;
 	}
 
-	public float getRank(String holeCards, String board) throws IOException {
+	float getRank(String holeCards, String board) throws IOException {
 		update(board);
 		HashMap<String, Float> map = maps.get(getIndex(board));
 		if (map.containsKey(holeCards))
@@ -46,7 +46,7 @@ public class StrengthEvaluator {
 		return -1;
 	}
 
-	public float getHandStength(String holeCards, String board) throws Exception {
+	float getHandStength(String holeCards, String board) throws Exception {
 		update(board);
 		HashMap<String, Float> map = maps.get(getIndex(board));
 		if (!map.containsKey(holeCards))

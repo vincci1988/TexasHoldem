@@ -10,4 +10,7 @@ public class AsheParams {
 	
 	//Hand Strength Database location ("/Volumes/My Passport/HSDB")
 	public static final String HSDBPath = "B:\\HSDB";
+	
+	//Win Rate Estimator genome file location
+	public static String WREGenomeFile = "AsheGenome_WRE.txt";
 }

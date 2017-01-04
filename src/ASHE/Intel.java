@@ -26,7 +26,7 @@ public class Intel {
 		return priors;
 	}
 
-	public NodeBase currentState() {
+	NodeBase currentState() {
 		return current;
 	}
 

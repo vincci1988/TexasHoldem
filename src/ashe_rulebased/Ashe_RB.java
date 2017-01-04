@@ -15,16 +15,16 @@ import holdem.Raise;
 import holdem.Result;
 import holdem.TableInfo;
 
-public class Ashe extends PlayerBase {
+public class Ashe_RB extends PlayerBase {
 
-	public Ashe(int id) {
+	public Ashe_RB(int id) {
 		super(id);
 		forest = null;
 		forestFile = null;
 		rand = new Random();
 	}
 
-	public Ashe(int id, String forestFile) {
+	public Ashe_RB(int id, String forestFile) {
 		super(id);
 		forest = null;
 		this.forestFile = forestFile;

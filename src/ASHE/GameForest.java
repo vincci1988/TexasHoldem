@@ -12,9 +12,9 @@ import holdem.Result;
 import holdem.Showdown;
 import holdem.WinBeforeShowdown;
 
-public class GameForest implements Statistician {
+class GameForest implements Statistician {
 
-	public GameForest(int myID) {
+	GameForest(int myID) {
 		trees = new GameTree[gameTreeCnt];
 		intel = new Intel();
 		this.myID = myID;
@@ -22,7 +22,7 @@ public class GameForest implements Statistician {
 		reset();
 	}
 
-	public GameForest(int myID, String file) throws IOException {
+	GameForest(int myID, String file) throws IOException {
 		trees = new GameTree[gameTreeCnt];
 		intel = new Intel();
 		this.myID = myID;
@@ -33,72 +33,7 @@ public class GameForest implements Statistician {
 		reader.close();
 		prepare();
 	}
-
-	// MUST be called for each new match/opponent
-	public void reset() {
-		for (int i = 0; i < trees.length; i++)
-			trees[i] = new GameTree(i);
-		prepare();
-	}
-
-	// MUST be called for each new game
-	public void prepare() {
-		stage = 0;
-		position = -1;
-		intel.reset();
-		boards[0] = "";
-		for (int i = 1; i < boards.length; i++)
-			boards[i] = "UNKNOWN";
-	}
-
-	// MUST be called by "getAction(TableInfo)" to ensure correct position value
-	public Intel getIntel() {
-		if (position == -1) 
-			position = 0;
-		NodeBase current = trees[index()].getCurrent();
-		if (current instanceof Root)
-			current.stats.frequency++;
-		intel.updateCurrent(current);
-		return intel;
-	}
-
-	// MUST be called by "observe(ActionInfoBase)" to ensure correct position
-	// value
-	public void updateAction(ActionInfoBase actionInfo) {
-		if (position == -1) 
-			position = 1;
-		if (actionInfo.playerID != myID && trees[index()].getCurrent() instanceof Root)
-			trees[index()].getCurrent().stats.frequency++;
-		if (boards[stage].equals("UNKNOWN"))
-			boards[stage] = actionInfo.board;
-		if (trees[index()].updateAction(actionInfo) && stage < 3) {
-			intel.updateRecord(trees[index()].getCurrent());
-			stage++;
-		}
-	}
-
-	// MUST be called by "observe(Result) to ensure correct pointer value
-	public void updateResult(Result result) throws Exception {
-		for (; stage >= 0; stage--) {
-			if (result instanceof WinBeforeShowdown)
-				trees[index()].backtrackWBS(((WinBeforeShowdown) result).winnerID == myID);
-			else if (result instanceof Showdown) {
-				trees[index()].backtrackSD(
-						evaluator.getHandStength(getOpponentHoleCards((Showdown) result), boards[stage]));
-			}
-		}
-		for (int i = 0; i < 4; i++) {
-			trees[position + 2 * i].refresh();
-		}
-	}
-
-	public String display() {
-		String res = "";
-		for (int i = 0; i < trees.length; i++)
-			res += trees[i].display() + "\n";
-		return res;
-	}
-
+	
 	public String toString() {
 		String res = "";
 		for (int i = 0; i < trees.length; i++)
@@ -118,6 +53,65 @@ public class GameForest implements Statistician {
 		for (int i = 0; i < trees.length; i++)
 			 cnt += trees[i].nodeCnt();
 		return cnt;
+	}
+
+	void reset() {
+		for (int i = 0; i < trees.length; i++)
+			trees[i] = new GameTree(i);
+		prepare();
+	}
+
+	void prepare() {
+		stage = 0;
+		position = -1;
+		intel.reset();
+		boards[0] = "";
+		for (int i = 1; i < boards.length; i++)
+			boards[i] = "UNKNOWN";
+	}
+
+	Intel getIntel() {
+		if (position == -1) 
+			position = 0;
+		NodeBase current = trees[index()].getCurrent();
+		if (current instanceof Root)
+			current.stats.frequency++;
+		intel.updateCurrent(current);
+		return intel;
+	}
+
+	void updateAction(ActionInfoBase actionInfo) {
+		if (position == -1) 
+			position = 1;
+		if (actionInfo.playerID != myID && trees[index()].getCurrent() instanceof Root)
+			trees[index()].getCurrent().stats.frequency++;
+		if (boards[stage].equals("UNKNOWN"))
+			boards[stage] = actionInfo.board;
+		if (trees[index()].updateAction(actionInfo) && stage < 3) {
+			intel.updateRecord(trees[index()].getCurrent());
+			stage++;
+		}
+	}
+
+	void updateResult(Result result) throws Exception {
+		for (; stage >= 0; stage--) {
+			if (result instanceof WinBeforeShowdown)
+				trees[index()].backtrackWBS(((WinBeforeShowdown) result).winnerID == myID);
+			else if (result instanceof Showdown) {
+				trees[index()].backtrackSD(
+						evaluator.getHandStength(getOpponentHoleCards((Showdown) result), boards[stage]));
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			trees[position + 2 * i].refresh();
+		}
+	}
+
+	String display() {
+		String res = "";
+		for (int i = 0; i < trees.length; i++)
+			res += trees[i].display() + "\n";
+		return res;
 	}
 
 	private String getOpponentHoleCards(Showdown result) {
