@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 import holdem.ActionInfoBase;
 import holdem.FoldInfo;
-import holdem.HandInfo;
 import holdem.Result;
 import holdem.Showdown;
 import holdem.WinBeforeShowdown;
@@ -96,8 +94,7 @@ public class GameForest implements Statistician {
 			if (result instanceof WinBeforeShowdown)
 				trees[index()].backtrackWBS(normalizedReward);
 			else if (result instanceof Showdown)
-				trees[index()].backtrackSD(normalizedReward,
-						evaluator.getHandStength(getOpponentHoleCards((Showdown) result), boards[stage], 1));
+				trees[index()].backtrackSD(normalizedReward);
 		}
 		for (int i = 0; i < 4; i++) {
 			trees[position + 2 * i].refresh();
@@ -159,15 +156,6 @@ public class GameForest implements Statistician {
 		if (result instanceof Showdown)
 			return ((Showdown) result).potResults.get(0).handInfos.get(0).playerID == myID;
 		return false;
-	}
-
-	private String getOpponentHoleCards(Showdown result) {
-		ArrayList<HandInfo> hands = ((Showdown) result).potResults.get(0).handInfos;
-		for (int i = 0; i < hands.size(); i++) {
-			if (hands.get(i).playerID != myID)
-				return hands.get(i).holeCards;
-		}
-		return null;
 	}
 
 	private int index() {

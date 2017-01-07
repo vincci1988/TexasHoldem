@@ -20,19 +20,17 @@ public class AgentEvolution extends EvolutionBase {
 
 	public AgentEvolution() throws Exception {
 		super();
-		opponents = new PlayerBase[3];
-		//opponents[0] = new CandidStatistician(-1);
-		//opponents[2] = new HotheadManiac(-3);
-		//opponents[3] = new CallingMachine(-4);
-		opponents[0] = new Shaco(-1); //Ashe_RB(-1);
-		opponents[1] = new HotheadManiac(-2);
-		opponents[2] = new ScaredLimper(-3);
+		opponents = new PlayerBase[4];
+		opponents[0] = new Ashe_RB(-1);
+		opponents[1] = new Shaco(-2);
+		opponents[2] = new HotheadManiac(-3);
+		opponents[3] = new ScaredLimper(-5);
 		avgSurvivorFitness = 0;
 		std = 0;
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new Ashe(id++)));//, "AsheGenome_Gen10.txt")));
+			population.add(new Agent(new Ashe(id++, "AsheGenome_BL.txt")));
 	}
 
 	@Override
@@ -77,11 +75,11 @@ public class AgentEvolution extends EvolutionBase {
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
 			//res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] + ", ";
-			res += "SL = " + (population.get(i).stats[2] - 750) + " / " + maxStats[2] + ", ";
-			//res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
 			//res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
-			res += "HM = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
-			res += "SH = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
+			res += "SL = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
+			res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
+			res += "SH = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
+			res += "AR = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 		}
@@ -106,7 +104,7 @@ public class AgentEvolution extends EvolutionBase {
 
 			for (int j = 0; j < opponents.length; j++) {
 				if (opponents[j] instanceof ScaredLimper)
-					population.get(i).fitness += (population.get(i).stats[j] - 750) / maxStats[j];
+					population.get(i).fitness += (population.get(i).stats[j] - 750) / (maxStats[j] - 750);
 				else
 					population.get(i).fitness += population.get(i).stats[j] / maxStats[j];
 			}
@@ -153,18 +151,18 @@ public class AgentEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
-	double[] maxStats = { 2000, 40000, 250, 40000, 1000 };
+	double[] maxStats = { 1000, 3000, 10000, 1000 };
 
 	static final int populationSize = 20;
-	static final int maxGenCnt = 2;
-	static final int maxDeckCnt = 5;
+	static final int maxGenCnt = 100;
+	static final int maxDeckCnt = 500;
 	static final int champDeckCnt = 1500;
 	static final int SBAmt = 50;
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
-	static final double initialMutationRate = 0.1;
+	static final double initialMutationRate = 0.075;
 	static final double finalMutationRate = 0.05;
-	static final double initialMutationStrength = 0.25;
+	static final double initialMutationStrength = 0.175;
 	static final double finalMutationStrength = 0.1;
 	static final String logPath = "AsheEvolutionLog.txt";
 	static int id = 0;

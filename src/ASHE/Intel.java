@@ -48,6 +48,18 @@ public class Intel {
 			return node.stats.frequency / (1.0 + 0.9 * node.parent.stats.frequency);
 		return node.stats.frequency * 1.0 / (1.0 + node.parent.stats.frequency);
 	}
+	
+	double getStateFreq(NodeBase node, double smooth) {
+		if (node == null)
+			return smooth;
+		if (node.parent == null)
+			return 1.0;
+		if (node.parent.stats.frequency < 10) {
+			double weight = node.parent.stats.frequency / 10.0; 
+			return weight * node.stats.frequency / (1.0 + node.parent.stats.frequency) + (1 - weight) * smooth;
+		}
+		return node.stats.frequency * 1.0 / (1.0 + node.parent.stats.frequency);
+	}
 
 	int getBetCnt() {
 		int betCnt = 0;

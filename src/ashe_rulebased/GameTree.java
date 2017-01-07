@@ -52,13 +52,10 @@ class GameTree {
 		}
 	}
 
-	void backtrackSD(double normalizedReward, double opponentHandStrength) {
+	void backtrackSD(double normalizedReward) {
 		if (current != root) {
 			for (; current != null; current = current.parent) {
 				current.stats.showdown++;
-				current.stats.oSDH_M = (opponentHandStrength + current.stats.oSDH_M * (current.stats.showdown - 1))
-						/ current.stats.showdown;
-				current.stats.oSDH_SoS += Math.pow(opponentHandStrength, 2);
 				current.stats.cReward += normalizedReward;
 				current.stats.significance += Math.abs(normalizedReward);
 			}
