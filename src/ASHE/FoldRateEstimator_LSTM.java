@@ -2,6 +2,7 @@ package ASHE;
 
 import java.util.Vector;
 
+import LSTMPlus.FFNetwork;
 import LSTMPlus.LSTMLayer;
 import LSTMPlus.Util;
 import holdem.ActionBase;
@@ -13,23 +14,24 @@ public class FoldRateEstimator_LSTM extends EstimatorBase {
 	FoldRateEstimator_LSTM(Ashe ashe) {
 		super(ashe);
 		iLayer = new LSTMLayer(iLayerInputDim, cellCnt);
-		wLayer = new LSTMLayer(wLayerInputDim, cellCnt);
+		aNet = new FFNetwork(aNetInputDim, aNetHiddenNodeCnt, aNetOutputDim);
 	}
 
 	FoldRateEstimator_LSTM(Ashe ashe, double[] genome) throws Exception {
 		super(ashe);
 		iLayer = new LSTMLayer(iLayerInputDim, cellCnt,
 				Util.head(genome, LSTMLayer.getGenomeLength(iLayerInputDim, cellCnt)));
-		wLayer = new LSTMLayer(wLayerInputDim, cellCnt,
-				Util.head(genome, LSTMLayer.getGenomeLength(wLayerInputDim, cellCnt)));
+		aNet = new FFNetwork(aNetInputDim, aNetHiddenNodeCnt, aNetOutputDim,
+				Util.tail(genome, FFNetwork.getGenomeLength(aNetInputDim, aNetHiddenNodeCnt, aNetOutputDim)));
 	}
 
 	double[] getGenome() {
-		return Util.concat(iLayer.getGenome(), wLayer.getGenome());
+		return Util.concat(iLayer.getGenome(), aNet.getGenome());
 	}
 
 	static int getGenomeLength() {
-		return LSTMLayer.getGenomeLength(iLayerInputDim, cellCnt) + LSTMLayer.getGenomeLength(wLayerInputDim, cellCnt);
+		return LSTMLayer.getGenomeLength(iLayerInputDim, cellCnt)
+				+ FFNetwork.getGenomeLength(aNetInputDim, aNetHiddenNodeCnt, aNetOutputDim);
 	}
 
 	@Override
@@ -43,16 +45,15 @@ public class FoldRateEstimator_LSTM extends EstimatorBase {
 			trace.add(node);
 		else
 			trace.add(intel.current);
-		double potOdds = 0;
+		double[] potOdds = new double[1];
 		if (action instanceof Raise)
-			potOdds = 1.0 * (((Raise) action).getAmt() - info.currentBet)
+			potOdds[0] = 1.0 * (((Raise) action).getAmt() - info.currentBet)
 					/ (info.potSize + 2 * ((Raise) action).getAmt() - ashe.getMyBet() - info.currentBet);
 		else
-			potOdds = 1.0 * (ashe.getMyBet() + ashe.getMyStack() - info.currentBet) / 2 / AsheParams.stk;
+			potOdds[0] = 1.0 * (ashe.getMyBet() + ashe.getMyStack() - info.currentBet) / 2 / AsheParams.stk;
+		double fr_base = smooth(node, potOdds[0], info);
 		iLayer.reset();
-		wLayer.reset();
-		double impression = 0;
-		double weight = 0;
+		double[] impression = null;
 		for (int i = 0; i < trace.size(); i++) {
 			double influence = 0;
 			if (i == trace.size() - 1)
@@ -60,12 +61,23 @@ public class FoldRateEstimator_LSTM extends EstimatorBase {
 			else
 				influence = Math.pow(0.5, trace.size() - i);
 			double[] input = getLSTMInput(trace.get(i), influence);
-			impression = iLayer.activate(input)[0];
-			weight = wLayer.activate(Util.tail(input, 2))[0];
+			impression = iLayer.activate(input);
 		}
-		impression = (impression + 1) / 2;
-		weight = (weight + 1) / 2;
-		return impression * weight + potOdds * (1 - weight);
+		impression = Util.concat(impression, potOdds);
+		double adjustment = aNet.activate(impression)[0];
+		adjustment = (adjustment + 1) / 2;
+		return Math.pow(fr_base, adjustment);
+	}
+	
+	private double smooth(NodeBase node, double potOdds, TableInfo info) {
+		double smooth = potOdds * (1 + info.board.length() / 10.0);
+		if (node == null)
+			return smooth;
+		double sampleRate = 1.0 * node.stats.oppFold / node.stats.frequency;
+		if (node != null && node.stats.frequency > 10) 
+			return sampleRate;	
+		double weight = node.stats.frequency / 10.0;
+		return smooth * (1 - weight) + weight * sampleRate;
 	}
 
 	private double[] getLSTMInput(NodeBase node, double distance) {
@@ -73,15 +85,21 @@ public class FoldRateEstimator_LSTM extends EstimatorBase {
 		input[0] = 1.0 * node.stats.oppFold / node.stats.frequency;
 		input[1] = Util.tanh(0.1 * node.stats.frequency);
 		input[2] = distance;
+		for (input[3] = 0; node.parent != null; node = node.parent)
+			if (node.conditionCode > 3)
+				input[3]++;
+		input[3] = Math.tanh(input[3]);
 		for (int i = 0; i < input.length; i++)
 			input[i] = 2 * input[i] - 1;
 		return input;
 	}
 
-	static int iLayerInputDim = 3;
-	static int wLayerInputDim = 2;
-	static int cellCnt = 1;
+	static int iLayerInputDim = 4;
+	static int cellCnt = 9;
+	static int aNetInputDim = cellCnt + 1;
+	static int aNetHiddenNodeCnt = 7;
+	static int aNetOutputDim = 1;
 
 	LSTMLayer iLayer;
-	LSTMLayer wLayer;
+	FFNetwork aNet;
 }

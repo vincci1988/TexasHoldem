@@ -25,9 +25,7 @@ public class Ashe extends PlayerBase implements Evolvable {
 		forest = null;
 		forestFile = null;
 		rand = new Random();
-		WRE = new WinRateEstimator_LSTM(this);
-		FRE = new FoldRateEstimator_RuleBased(this);
-		//FRE = new FoldRateEstimator_LSTM(this);
+		constructByGenome(new AsheGenome(AsheParams.GenomeFile));
 	}
 
 	public Ashe(int id, AsheGenome genome) throws Exception {
@@ -56,25 +54,24 @@ public class Ashe extends PlayerBase implements Evolvable {
 
 	private void constructByGenome(AsheGenome genome) throws Exception {
 		double[] genes = genome.getGenes();
-		WRE = new WinRateEstimator_LSTM(this, genes);
-		//WRE = new WinRateEstimator_LSTM(this,
-		//		(new AsheGenome(AsheParams.WREGenomeFile, WinRateEstimator_LSTM.getGenomeLength())).getGenes());
-		FRE = new FoldRateEstimator_RuleBased(this);
-		//FRE = new FoldRateEstimator_LSTM(this, Util.tail(genes, FoldRateEstimator_LSTM.getGenomeLength()));
+		WRE = new WinRateEstimator_LSTM(this,
+				Util.head(genes, WinRateEstimator_LSTM.getGenomeLength()));
+		FRE = new FoldRateEstimator_LSTM(this, 
+				Util.tail(genes, FoldRateEstimator_LSTM.getGenomeLength()));
 	}
 
 	@Override
 	public GenomeBase getGenome() {
 		double[] genome = null;
 		genome = Util.concat(genome, ((WinRateEstimator_LSTM) WRE).getGenome());
-		//genome = Util.concat(genome, ((FoldRateEstimator_LSTM) FRE).getGenome());
+		genome = Util.concat(genome, ((FoldRateEstimator_LSTM) FRE).getGenome());
 		return new AsheGenome(genome);
 	}
 
 	public static int getGenomeLength() {
 		int length = 0;
 		length += WinRateEstimator_LSTM.getGenomeLength();
-		//length += FoldRateEstimator_LSTM.getGenomeLength();
+		length += FoldRateEstimator_LSTM.getGenomeLength();
 		return length;
 	}
 
@@ -194,8 +191,8 @@ public class Ashe extends PlayerBase implements Evolvable {
 		if (action instanceof Fold)
 			return -(info.potSize + getMyBet() - info.currentBet) / 2;
 		double winRate = WRE.estimate(info, intel, handStrength, action);
-		System.out.println(action.getClass().getSimpleName());
-		System.out.println("WR = " + winRate);
+		//System.out.println(action.getClass().getSimpleName());
+		//System.out.println("WR = " + winRate);
 		if (action instanceof Check && !(intel.current instanceof Root))
 			return (2 * winRate - 1) * info.potSize / 2;
 		if (action instanceof Check) {
@@ -219,8 +216,8 @@ public class Ashe extends PlayerBase implements Evolvable {
 		}
 		if (action instanceof Call || (action instanceof AllIn && info.currentBet >= getMyBet() + getMyStack()))
 			return (2 * winRate - 1) * (info.potSize + info.currentBet - getMyBet()) / 2;
-		double fp = FRE.estimate(info, intel, handStrength, action); 
-		System.out.println("FR = " + fp);
+		double fp = FRE.estimate(info, intel, handStrength, action);
+		//System.out.println("FR = " + fp);
 		if (action instanceof Raise)
 			return fp * (info.potSize + info.currentBet - getMyBet()) / 2 + (1 - fp) * (2 * winRate - 1)
 					* ((info.potSize - info.currentBet - getMyBet()) / 2 + ((Raise) action).getAmt());
@@ -231,11 +228,25 @@ public class Ashe extends PlayerBase implements Evolvable {
 	}
 
 	private double getFoldEquity(double handStrength, Raise raise, TableInfo info, Intel intel) throws Exception {
-		double fp = FRE.estimate(info, intel, handStrength, raise);
-		//System.out.println(raise.getClass().getSimpleName() + ": FR = " + fp);
+		double fp = estimate(info, intel, raise);
 		double winRate = Math.pow(handStrength, 1.0 + fp);
 		return fp * (info.potSize + info.currentBet - raise.getBet()) / 2 + (1 - fp)
 				* ((2 * winRate - 1) * ((info.potSize - info.currentBet - raise.getBet()) / 2 + raise.getAmt()));
+	}
+	
+	private double estimate(TableInfo info, Intel intel, ActionBase action) throws Exception {
+		NodeBase raiseNode = intel.next(action, info);
+		double potOdds = action instanceof Raise
+				? 1.0 * (((Raise) action).getAmt() - info.currentBet)
+						/ (info.potSize + 2 * ((Raise) action).getAmt() - getMyBet() - info.currentBet)
+				: 1.0 * (getMyBet() + getMyStack() - info.currentBet) / 2 / AsheParams.stk;
+		double smooth = potOdds * (1.0 + 0.7 * info.board.length() / 10.0);
+		if (raiseNode == null) 
+			return smooth;
+		double fr = 1.0 * raiseNode.stats.oppFold / raiseNode.stats.frequency;
+		if (raiseNode.stats.frequency < 10)
+			return smooth * (1.0 - raiseNode.stats.frequency / 10.0) + fr * raiseNode.stats.frequency / 10.0;
+		return fr;
 	}
 
 	private boolean shouldFold(double handStrength, double frequency, double potOdds) {

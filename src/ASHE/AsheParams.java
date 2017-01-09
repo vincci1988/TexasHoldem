@@ -13,4 +13,8 @@ public class AsheParams {
 	
 	//Win Rate Estimator genome file location
 	public static String WREGenomeFile = "AsheGenome_WRE.txt";
+	
+	public static String FREGenomeFile = "AsheGenome_FRE.txt";
+	
+	public static String GenomeFile = "AsheGenome.txt";
 }

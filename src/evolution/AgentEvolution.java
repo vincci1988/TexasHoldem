@@ -21,7 +21,8 @@ public class AgentEvolution extends EvolutionBase {
 	public AgentEvolution() throws Exception {
 		super();
 		opponents = new PlayerBase[4];
-		opponents[0] = new Ashe_RB(-1);
+		opponents[0] = new Ashe(-1);
+		//opponents[0] = new CandidStatistician(-1);
 		opponents[1] = new Shaco(-2);
 		opponents[2] = new HotheadManiac(-3);
 		opponents[3] = new ScaredLimper(-5);
@@ -30,7 +31,7 @@ public class AgentEvolution extends EvolutionBase {
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new Ashe(id++, "AsheGenome_BL.txt")));
+			population.add(new Agent(new Ashe(id++)));
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class AgentEvolution extends EvolutionBase {
 			res += "SL = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
 			res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
 			res += "SH = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
-			res += "AR = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
+			res += "AB = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 		}
@@ -151,7 +152,7 @@ public class AgentEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
-	double[] maxStats = { 1000, 3000, 10000, 1000 };
+	double[] maxStats = { 1000, 3000, 30000, 1000 };
 
 	static final int populationSize = 20;
 	static final int maxGenCnt = 100;

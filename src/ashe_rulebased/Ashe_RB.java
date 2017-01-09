@@ -77,7 +77,7 @@ public class Ashe_RB extends PlayerBase {
 
 	@Override
 	public String getName() {
-		return "Ashe (ID = " + id + ")";
+		return "Ashe_RB (ID = " + id + ")";
 	}
 
 	private ActionBase river(Vector<ActionBase> actions, TableInfo info, Intel intel) throws Exception {
