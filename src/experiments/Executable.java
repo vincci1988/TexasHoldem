@@ -21,9 +21,9 @@ public class Executable {
 		try {
 			PlayerBase agent = new Ashe(1);// ,
 																	// "forest_sl.txt");
-			autoEval(agent);
-			autoDuel(agent, new Ashe(898, "AsheGenome_Gen40.txt"));
-			// manualEval(agent);
+			//autoEval(agent);
+			//autoDuel(agent, new Ashe(898, "AsheGenome_Gen40.txt"));
+			manualEval(agent);
 		} catch (Exception exception) {
 			System.out.println(exception);
 			exception.printStackTrace();

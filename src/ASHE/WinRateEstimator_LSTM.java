@@ -87,8 +87,12 @@ public class WinRateEstimator_LSTM extends EstimatorBase {
 				return 0;
 			handStrength = 1.0 - (1.0 - handStrength) / (1.0 - potOdds);
 		}
-		if (action instanceof AllIn && ashe.getMyStack() + ashe.getMyBet() > info.currentBet) {
-			double potOdds = 1.0 * (ashe.getMyStack() + ashe.getMyBet() - info.currentBet) / AsheParams.stk / 2;
+		if (action instanceof AllIn) {
+			double potOdds = 0;
+			if (ashe.getMyStack() + ashe.getMyBet() > info.currentBet) 		
+				potOdds = 1.0 * (ashe.getMyStack() + ashe.getMyBet() - info.currentBet) / AsheParams.stk / 2;
+			else 
+				potOdds = 1.0 * (info.currentBet - ashe.getMyBet()) / AsheParams.stk / 2;
 			if (handStrength < Math.sqrt(potOdds))
 				return 0;
 			handStrength = 1.0 - (1.0 - handStrength) / (1.0 - Math.sqrt(potOdds));

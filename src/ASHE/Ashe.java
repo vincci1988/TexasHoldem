@@ -191,8 +191,8 @@ public class Ashe extends PlayerBase implements Evolvable {
 		if (action instanceof Fold)
 			return -(info.potSize + getMyBet() - info.currentBet) / 2;
 		double winRate = WRE.estimate(info, intel, handStrength, action);
-		//System.out.println(action.getClass().getSimpleName());
-		//System.out.println("WR = " + winRate);
+		System.out.println(action.getClass().getSimpleName());
+		System.out.println("WR = " + winRate);
 		if (action instanceof Check && !(intel.current instanceof Root))
 			return (2 * winRate - 1) * info.potSize / 2;
 		if (action instanceof Check) {
@@ -217,7 +217,7 @@ public class Ashe extends PlayerBase implements Evolvable {
 		if (action instanceof Call || (action instanceof AllIn && info.currentBet >= getMyBet() + getMyStack()))
 			return (2 * winRate - 1) * (info.potSize + info.currentBet - getMyBet()) / 2;
 		double fp = FRE.estimate(info, intel, handStrength, action);
-		//System.out.println("FR = " + fp);
+		System.out.println("FR = " + fp);
 		if (action instanceof Raise)
 			return fp * (info.potSize + info.currentBet - getMyBet()) / 2 + (1 - fp) * (2 * winRate - 1)
 					* ((info.potSize - info.currentBet - getMyBet()) / 2 + ((Raise) action).getAmt());
