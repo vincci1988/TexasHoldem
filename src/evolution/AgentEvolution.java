@@ -10,7 +10,7 @@ import ashe_rulebased.Ashe_RB;
 import ASHE.Ashe;
 import ASHE.AsheGenome;
 import evolvable_players.*;
-import experiments.NLHeadsUpEvaluation;
+import exp_local.NLHeadsUpEvaluation;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
 import simple_players.*;

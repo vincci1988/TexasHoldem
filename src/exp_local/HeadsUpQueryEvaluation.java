@@ -1,4 +1,4 @@
-package experiments;
+package exp_local;
 
 import holdem.HeadsUpQueryTable;
 import holdem.PlayerBase;
