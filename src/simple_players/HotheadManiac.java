@@ -17,7 +17,7 @@ public class HotheadManiac extends PlayerBase {
 
 	@Override
 	public ActionBase getAction(TableInfo info) {
-		int bet = info.currentBet + info.minRaise * 2;
+		int bet = info.currentBet + (info.potSize + info.currentBet - getMyBet()); //pot-size
 		if (bet < getMyBet() + getMyStack()) return new Raise(this, bet);
 		return new AllIn(this);
 	}

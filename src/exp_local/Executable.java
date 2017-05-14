@@ -5,11 +5,11 @@ import ASHE.Ashe;
 import ASHE.AsheParams;
 import ashe_rulebased.Ashe_RB;
 import ahri.Ahri;
-import evolvable_players.*;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
 import opponent_model.GameForest;
 import simple_players.CallingMachine;
+import simple_players.CandidStatistician;
 import simple_players.HotheadManiac;
 import simple_players.ScaredLimper;
 import simple_players.Villian;
@@ -19,11 +19,10 @@ public class Executable {
 
 	public static void main(String[] args) {
 		try {
-			PlayerBase agent = new Ashe(1);// ,
-																	// "forest_sl.txt");
+			PlayerBase agent = new Ashe(1);// "forest_sl.txt");
 			//autoEval(agent);
-			//autoDuel(agent, new Ashe(898, "AsheGenome_Gen40.txt"));
-			manualEval(agent);
+			autoDuel(agent, new CandidStatistician(-1));
+			//manualEval(agent);
 		} catch (Exception exception) {
 			System.out.println(exception);
 			exception.printStackTrace();

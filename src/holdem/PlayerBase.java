@@ -122,6 +122,9 @@ public abstract class PlayerBase {
 	public abstract void observe(ActionInfoBase actionInfo);
 	public abstract void observe(Result resultInfo) throws Exception ;
 	public abstract String getName();
+	public String toString() {
+		return "PlayerBase";
+	}
 	
 	protected final int id;
 	private int balance;

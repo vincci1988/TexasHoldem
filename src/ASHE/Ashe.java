@@ -114,7 +114,7 @@ public class Ashe extends PlayerBase implements Evolvable {
 
 	public void saveForest(String path) throws IOException {
 		forest.save(path);
-		System.out.println("Game forest saved at " + path + " (" + forest.getTotalNodeCnt() + " nodes).");
+		// System.out.println("Game forest saved at " + path + " (" + forest.getTotalNodeCnt() + " nodes).");
 	}
 
 	@Override
@@ -191,8 +191,8 @@ public class Ashe extends PlayerBase implements Evolvable {
 		if (action instanceof Fold)
 			return -(info.potSize + getMyBet() - info.currentBet) / 2;
 		double winRate = WRE.estimate(info, intel, handStrength, action);
-		System.out.println(action.getClass().getSimpleName());
-		System.out.println("WR = " + winRate);
+		//System.out.println(action.getClass().getSimpleName());
+		//System.out.println("WR = " + winRate);
 		if (action instanceof Check && !(intel.current instanceof Root))
 			return (2 * winRate - 1) * info.potSize / 2;
 		if (action instanceof Check) {
@@ -217,12 +217,12 @@ public class Ashe extends PlayerBase implements Evolvable {
 		if (action instanceof Call || (action instanceof AllIn && info.currentBet >= getMyBet() + getMyStack()))
 			return (2 * winRate - 1) * (info.potSize + info.currentBet - getMyBet()) / 2;
 		double fp = FRE.estimate(info, intel, handStrength, action);
-		System.out.println("FR = " + fp);
+		//System.out.println("FR = " + fp);
 		if (action instanceof Raise)
 			return fp * (info.potSize + info.currentBet - getMyBet()) / 2 + (1 - fp) * (2 * winRate - 1)
 					* ((info.potSize - info.currentBet - getMyBet()) / 2 + ((Raise) action).getAmt());
 		if (action instanceof AllIn)
-			return fp * (info.potSize + info.currentBet - action.getBet()) / 2
+			return fp * (info.potSize + info.currentBet - getMyBet()) / 2
 					+ (1 - fp) * (2 * winRate - 1) * AsheParams.stk;
 		return 0;
 	}
@@ -270,7 +270,7 @@ public class Ashe extends PlayerBase implements Evolvable {
 			if (info.currentBet + potSizeBet < getMyBet() + getMyStack())
 				actions.add(new Raise(this, info.currentBet + potSizeBet));
 		}
-		if (info.board.length() == 10 || info.currentBet + potSizeBet >= getMyBet() + getMyStack())
+		if (info.currentBet + potSizeBet >= getMyBet() + getMyStack())//(info.board.length() == 10 || info.currentBet + potSizeBet >= getMyBet() + getMyStack())
 			actions.add(new AllIn(this));
 		return actions;
 	}

@@ -2,8 +2,8 @@ package holdem;
 
 import java.util.ArrayList;
 
-import evolvable_players.*;
 import simple_players.*;
+import simple_players.CandidStatistician;
 
 public class HumanTestTable extends GameTable {
 
@@ -43,7 +43,7 @@ public class HumanTestTable extends GameTable {
 			for (; i < cmCnt + csCnt + hmCnt + slCnt;)
 				mount(new ScaredLimper(++i));
 			for (; i < cmCnt + csCnt + hmCnt + slCnt + ugCnt;)
-				mount(new UnpredictableGambler(++i));
+				mount(new WildGambler(++i));
 			play(cheat);
 		}
 	}

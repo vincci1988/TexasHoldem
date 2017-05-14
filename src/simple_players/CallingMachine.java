@@ -13,7 +13,6 @@ public class CallingMachine extends PlayerBase {
 
 	public CallingMachine(int id) {
 		super(id);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

@@ -69,4 +69,5 @@ public class TableInfo {
 	public int minRaise;
 	public int potSize;
 	public int playerCnt;
+	public int buttonID;
 }
