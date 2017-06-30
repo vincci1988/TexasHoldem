@@ -5,14 +5,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import ASHE.*;
+import advanced_players.*;
 import simple_players.*;
 import holdem.PlayerBase;
 
+@SuppressWarnings("unused")
 public class Executable {
 
 	public static void main(String[] args) throws Exception {
-
-		PlayerBase agent = new CandidStatisticianPlus(1); //Ashe(1);//, AsheParams.GenomeFile, "forest.txt");
+		PlayerBase agent = new WildGambler(1); //Ashe(1);//, AsheParams.GenomeFile, "forest.txt");
 		WebHUNLEval test = new WebHUNLEval(agent, 1000, 20);
 		test.run();
 	}

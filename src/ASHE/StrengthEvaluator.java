@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
-class StrengthEvaluator {
+public class StrengthEvaluator {
 
 	StrengthEvaluator(String HSDBPath) {
 		this.HSDBPath = HSDBPath;
@@ -46,7 +46,7 @@ class StrengthEvaluator {
 		return -1;
 	}
 
-	float getHandStength(String holeCards, String board) throws Exception {
+	public float getHandStength(String holeCards, String board) throws Exception {
 		update(board);
 		HashMap<String, Float> map = maps.get(getIndex(board));
 		if (!map.containsKey(holeCards))

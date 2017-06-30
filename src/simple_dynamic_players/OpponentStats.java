@@ -1,4 +1,4 @@
-package advanced_players;
+package simple_dynamic_players;
 
 import holdem.ActionInfoBase;
 import holdem.FoldInfo;

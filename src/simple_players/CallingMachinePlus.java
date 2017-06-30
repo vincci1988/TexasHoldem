@@ -10,7 +10,7 @@ import holdem.PlayerBase;
 import holdem.Result;
 import holdem.TableInfo;
 
-public class CallingMachinePlus extends PlayerBase implements Statistician {
+public class CallingMachinePlus extends PlayerBase implements ASHE.Statistician {
 
 	public CallingMachinePlus(int id) {
 		super(id);
@@ -20,7 +20,7 @@ public class CallingMachinePlus extends PlayerBase implements Statistician {
 	public ActionBase getAction(TableInfo info) throws Exception {
 		if (info.currentBet == getMyBet()) 
 			return new Check(this);
-		double handStrength = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
+		double handStrength = evaluator.getHandStength(peek(), info.board);
 		if (handStrength < getPotOdds(info))
 			return new Fold(this);
 		if (info.currentBet < getMyBet() + getMyStack()) return new Call(this);

@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.Collections;
 
 import LSTM.Cell;
-import advanced_players.Shaco;
 import ashe_rulebased.Ashe_RB;
 import ASHE.Ashe;
 import ASHE.AsheGenome;
@@ -13,6 +12,7 @@ import evolvable_players.*;
 import exp_local.NLHeadsUpEvaluation;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
+import simple_dynamic_players.Shaco;
 import simple_players.*;
 
 @SuppressWarnings("unused")
@@ -21,17 +21,16 @@ public class AgentEvolution extends EvolutionBase {
 	public AgentEvolution() throws Exception {
 		super();
 		opponents = new PlayerBase[4];
-		opponents[0] = new Ashe(-1);
-		//opponents[0] = new CandidStatistician(-1);
-		opponents[1] = new Shaco(-2);
-		opponents[2] = new HotheadManiac(-3);
-		opponents[3] = new ScaredLimper(-5);
+		opponents[0] = new ScaredLimperPlus(-1);
+		opponents[1] = new CallingMachinePlus(-2);
+		opponents[2] = new HotheadManiacPlus(-3);
+		opponents[3] = new CandidStatisticianPlus(-4);
 		avgSurvivorFitness = 0;
 		std = 0;
 		mutationRate = initialMutationRate;
 		mutationStrength = initialMutationStrength;
 		for (int i = 0; i < populationSize; i++)
-			population.add(new Agent(new Ashe(id++)));
+			population.add(new Agent(new Ashe(id++, "AsheGenome.txt", 0.05, 0.25)));
 	}
 
 	@Override
@@ -75,12 +74,10 @@ public class AgentEvolution extends EvolutionBase {
 			Ashe player = (Ashe) population.get(i).player;
 			res += "[" + (i + 1) + "] " + player.getName() + ": fitness = " + population.get(i).fitness
 					+ ", stats = { ";
-			//res += "CS = " + population.get(i).stats[0] + " / " + maxStats[0] + ", ";
-			//res += "CM = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
-			res += "SL = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
-			res += "HM = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
-			res += "SH = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
-			res += "AB = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
+			res += "CSP = " + population.get(i).stats[3] + " / " + maxStats[3] + ", ";
+			res += "HMP = " + population.get(i).stats[2] + " / " + maxStats[2] + ", ";
+			res += "CMP = " + population.get(i).stats[1] + " / " + maxStats[1] + ", ";
+			res += "SLP = " + population.get(i).stats[0] + " / " + maxStats[0] + " }\n";
 			avgSurvivorFitness += population.get(i).fitness;
 			std += population.get(i).fitness * population.get(i).fitness;
 		}
@@ -98,14 +95,14 @@ public class AgentEvolution extends EvolutionBase {
 						buyInAmt, maxDeckCnt);
 				double[] performances = headsUpTable.start();
 				population.get(i).stats[j] = performances[0];
-				if (population.get(i).stats[j] > maxStats[j] && !(opponents[j] instanceof ScaredLimper))
+				if (population.get(i).stats[j] > maxStats[j])
 					maxStats[j] = population.get(i).stats[j];
 			}
 			population.get(i).fitness = 0;
 
 			for (int j = 0; j < opponents.length; j++) {
-				if (opponents[j] instanceof ScaredLimper)
-					population.get(i).fitness += (population.get(i).stats[j] - 750) / (maxStats[j] - 750);
+				if (opponents[j] instanceof ScaredLimperPlus)
+					population.get(i).fitness += (population.get(i).stats[j] - 600) / (maxStats[j] - 600);
 				else
 					population.get(i).fitness += population.get(i).stats[j] / maxStats[j];
 			}
@@ -152,7 +149,7 @@ public class AgentEvolution extends EvolutionBase {
 	double std;
 	double mutationRate;
 	double mutationStrength;
-	double[] maxStats = { 1000, 3000, 30000, 1000 };
+	double[] maxStats = { 1000, 2000, 10000, 750 };
 
 	static final int populationSize = 20;
 	static final int maxGenCnt = 100;
@@ -162,9 +159,9 @@ public class AgentEvolution extends EvolutionBase {
 	static final int buyInAmt = 20000;
 	static final double survivalRate = 0.5;
 	static final double initialMutationRate = 0.075;
-	static final double finalMutationRate = 0.05;
-	static final double initialMutationStrength = 0.175;
-	static final double finalMutationStrength = 0.1;
+	static final double finalMutationRate = 0.025;
+	static final double initialMutationStrength = 0.25;
+	static final double finalMutationStrength = 0.05;
 	static final String logPath = "AsheEvolutionLog.txt";
 	static int id = 0;
 }

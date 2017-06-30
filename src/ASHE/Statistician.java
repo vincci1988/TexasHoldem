@@ -1,5 +1,5 @@
 package ASHE;
 
-interface Statistician {
+public interface Statistician {
 	static StrengthEvaluator evaluator = new StrengthEvaluator(AsheParams.HSDBPath);
 }

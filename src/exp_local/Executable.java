@@ -1,18 +1,25 @@
 package exp_local;
 
-import advanced_players.Shaco;
 import ASHE.Ashe;
 import ASHE.AsheParams;
+import ASHEPlus.AshePlus;
+import advanced_players.Teemo;
 import ashe_rulebased.Ashe_RB;
 import ahri.Ahri;
 import holdem.NLHeadsUpTable;
 import holdem.PlayerBase;
 import opponent_model.GameForest;
+import simple_dynamic_players.Shaco;
 import simple_players.CallingMachine;
+import simple_players.CallingMachinePlus;
 import simple_players.CandidStatistician;
+import simple_players.CandidStatisticianPlus;
 import simple_players.HotheadManiac;
+import simple_players.HotheadManiacPlus;
 import simple_players.ScaredLimper;
+import simple_players.ScaredLimperPlus;
 import simple_players.Villian;
+import simple_players.WildGambler;
 
 @SuppressWarnings("unused")
 public class Executable {
@@ -21,7 +28,7 @@ public class Executable {
 		try {
 			PlayerBase agent = new Ashe(1);// "forest_sl.txt");
 			//autoEval(agent);
-			autoDuel(agent, new CandidStatistician(-1));
+			autoDuel(agent, new HotheadManiacPlus(-1));
 			//manualEval(agent);
 		} catch (Exception exception) {
 			System.out.println(exception);
@@ -30,7 +37,7 @@ public class Executable {
 	}
 
 	static void autoDuel(PlayerBase a1, PlayerBase a2) throws Exception {
-		int gameCnt = 3000;
+		int gameCnt = 1000;
 		int roundCnt = 20;
 		double ans = 0;
 		System.out.println(a1.getName() + " v.s. " + a2.getName() + ": ");

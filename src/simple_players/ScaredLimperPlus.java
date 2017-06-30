@@ -9,7 +9,7 @@ import holdem.PlayerBase;
 import holdem.Result;
 import holdem.TableInfo;
 
-public class ScaredLimperPlus extends PlayerBase implements Statistician {
+public class ScaredLimperPlus extends PlayerBase implements ASHE.Statistician {
 
 	public ScaredLimperPlus(int id) {
 		super(id);
@@ -17,7 +17,7 @@ public class ScaredLimperPlus extends PlayerBase implements Statistician {
 
 	@Override
 	public ActionBase getAction(TableInfo info) throws Exception {
-		double handStrength = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
+		double handStrength = evaluator.getHandStength(peek(), info.board);
 		if (info.currentBet == getMyBet())
 			return new Check(this);
 		double mustdefend = (info.potSize + info.currentBet - getMyBet()) / 2.0 / info.potSize;

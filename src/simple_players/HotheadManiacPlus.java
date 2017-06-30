@@ -13,7 +13,7 @@ import holdem.Raise;
 import holdem.Result;
 import holdem.TableInfo;
 
-public class HotheadManiacPlus extends PlayerBase implements Statistician {
+public class HotheadManiacPlus extends PlayerBase implements ASHE.Statistician {
 
 	public HotheadManiacPlus(int id) {
 		super(id);
@@ -25,7 +25,7 @@ public class HotheadManiacPlus extends PlayerBase implements Statistician {
 	public ActionBase getAction(TableInfo info) throws Exception {
 		if (position == -1)
 			position = 1;
-		double handStrength = evaluator.getHandStength(peek(), info.board, info.playerInfos.size() - 1);
+		double handStrength = evaluator.getHandStength(peek(), info.board);
 		int potSizeBet = info.potSize + info.currentBet - getMyBet();
 		if (info.currentBet == getMyBet()) {
 			if (info.currentBet + potSizeBet / 2 >= getMyBet() + getMyStack()) 

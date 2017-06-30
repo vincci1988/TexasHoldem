@@ -27,6 +27,16 @@ public class Ashe extends PlayerBase implements Evolvable {
 		rand = new Random();
 		constructByGenome(new AsheGenome(AsheParams.GenomeFile));
 	}
+	
+	public Ashe(int id, String genomeFile,  double mr, double ms) throws IOException, Exception {
+		super(id);
+		forest = null;
+		forestFile = null;
+		rand = new Random();
+		AsheGenome genome = new AsheGenome(genomeFile);
+		genome.mutate(mr, ms);
+		constructByGenome(genome);
+	}
 
 	public Ashe(int id, AsheGenome genome) throws Exception {
 		super(id);
@@ -270,7 +280,7 @@ public class Ashe extends PlayerBase implements Evolvable {
 			if (info.currentBet + potSizeBet < getMyBet() + getMyStack())
 				actions.add(new Raise(this, info.currentBet + potSizeBet));
 		}
-		if (info.currentBet + potSizeBet >= getMyBet() + getMyStack())//(info.board.length() == 10 || info.currentBet + potSizeBet >= getMyBet() + getMyStack())
+		if (info.currentBet + potSizeBet >= getMyBet() + getMyStack() || info.board.length() == 10)
 			actions.add(new AllIn(this));
 		return actions;
 	}

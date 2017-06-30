@@ -1,4 +1,4 @@
-package advanced_players;
+package simple_dynamic_players;
 
 import java.util.Vector;
 
